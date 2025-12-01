@@ -2,7 +2,6 @@
 
 
 body {
-    
     margin: 0;
     padding: 0;
     width: 100%;
@@ -91,6 +90,19 @@ canvas {
     background-color: white;
     border: none;
     border-radius: 10%;
+}
+
+.account-btn:active,
+.account-btn:focus {
+    background-color: rgb(199, 199, 199);
+    border: none;
+    border-radius: 10%;
+    outline: none; /* 포커스 시 기본 외곽선 제거(원하면 제거) */
+}
+
+/* 눌렀을 때 약간 눌린 효과를 주고 싶으면 추가 */
+.account-btn:active {
+    transform: translateY(2px);
 }
 
 
