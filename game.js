@@ -4,19 +4,29 @@ import {online} from '/socekt.js'
 
 let mousePos = [0,0];
 let click = false;
-
-
+let downKey = null;
+const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split("");
 
 (async () => {
-
-    const sc = window.sc
     const phi = new PHI("canvas");
     const textCanvas = document.getElementById('text-canvas')
     textCanvas.width = innerWidth
     textCanvas.height = innerHeight
     const ctx = textCanvas.getContext('2d')
-    ctx.font = "20px Arial"; // 글자 크기 + 폰트
-    ctx.fillStyle = "blue"; // 글자 색
+    const font = new FontFace('PF스타더스트', 'url(/src/font/PF스타더스트.ttf)');
+    await font.load();
+    document.fonts.add(font);
+
+    function Text(text,pos,size='20px',color='white',font='basic'){
+        if (font == 'basic'){
+            ctx.font = `${size} PF스타더스트`;
+        }
+        ctx.fillStyle = color
+        ctx.fillText(text, pos[0],pos[1]);
+    }
+
+
+
     phi.display([innerWidth,innerHeight]);
     const deck = {
         BACK:await phi.imgLoad('/src/img/deck/BACK.png'),
@@ -106,6 +116,20 @@ let click = false;
         },
     }
 
+
+    const profileImg = {
+        'noplayer':await phi.imgLoad('/src/img/profile/noplayer.png'),
+        'test0':await phi.imgLoad('/src/img/profile/test0.png'),
+        'test1':await phi.imgLoad('/src/img/profile/test1.png'),
+        'test2':await phi.imgLoad('/src/img/profile/test2.png'),
+        'test3':await phi.imgLoad('/src/img/profile/test3.png'),
+    }
+
+    // const profileObj = []
+    // for (let i of profileImg){
+    //     profileObj[i] = phi.object(profileObj[profileImg[i]],[0,0],[100,100])
+    // }
+
     const uiImg = {
         back_box : await phi.imgLoad('/src/img/ui/back_box.png'),
         char_box : await phi.imgLoad('/src/img/ui/char_box.png'),
@@ -114,34 +138,42 @@ let click = false;
         make_room_btn : await phi.imgLoad('/src/img/ui/make_room_btn.png'),
         join_btn : await phi.imgLoad('/src/img/ui/join_btn.png'),
         rect : await phi.imgLoad('/src/img/ui/rect.png'),
-        setting_btn : await phi.imgLoad('/src/img/ui/setting_btn.png'),
+        dev_inf_btn : await phi.imgLoad('/src/img/ui/dev_inf_btn.png'),
         short_bar : await phi.imgLoad('/src/img/ui/short_bar.png'),
     }
 
-    const gameMenuUI = {
-        backBoxObj : phi.object(uiImg.back_box,[(innerWidth-uiImg.back_box.width)/2,(innerHeight-uiImg.back_box.height)/2],null),
-        long_bar : phi.object(uiImg.long_bar,[(innerWidth-uiImg.long_bar.width)/2,300],null),
-        join_btn : phi.object(uiImg.join_btn,[(innerWidth-uiImg.join_btn.width)/2 - 405,400],null),
-        make_room_btn : phi.object(uiImg.make_room_btn,[(innerWidth-uiImg.make_room_btn.width)/2 - 405,500],null),
-        setting_btn : phi.object(uiImg.setting_btn,[(innerWidth-uiImg.setting_btn.width)/2 - 405,600],null),
-        main_menu_btn : phi.object(uiImg.main_menu_btn,[(innerWidth-uiImg.main_menu_btn.width)/2 - 405,700],null),
-        char_box : phi.object(uiImg.char_box,[(innerWidth-uiImg.char_box.width)/2 - 80,(innerHeight-uiImg.char_box.height)/2 + 45],null),
-        
-        
-        
-        user_profile_0 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.short_bar.width)/2 + 365,400],null),
-        user_profile_1 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.short_bar.width)/2 + 365,500],null),
-        user_profile_2 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.short_bar.width)/2 + 365,600],null),
-        user_profile_3 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.short_bar.width)/2 + 365,700],null),
-        
-        user_picture_0 : phi.object(uiImg.rect,[(innerWidth-uiImg.rect.width)/2 + 110,400],null),
-        user_picture_1 : phi.object(uiImg.rect,[(innerWidth-uiImg.rect.width)/2 + 110,500],null),
-        user_picture_2 : phi.object(uiImg.rect,[(innerWidth-uiImg.rect.width)/2 + 110,600],null),
-        user_picture_3 : phi.object(uiImg.rect,[(innerWidth-uiImg.rect.width)/2 + 110,700],null),
-
-    
+    const mainMenuBtnMargin = 40;
+    const uiSet = {
+        gameMenuUI : {
+            back_box : phi.object(uiImg.back_box,[(innerWidth-uiImg.back_box.width)/2,(innerHeight-uiImg.back_box.height)/2],null),
+            long_bar : phi.object(uiImg.long_bar,[(innerWidth-uiImg.long_bar.width)/2,300],null),
+            join_btn : phi.object(uiImg.join_btn,[(innerWidth-uiImg.join_btn.width)/2 - uiImg.join_btn.width*1.5 - mainMenuBtnMargin*1.5,400],null),
+            make_room_btn : phi.object(uiImg.make_room_btn,[(innerWidth-uiImg.make_room_btn.width)/2 - uiImg.make_room_btn.width*0.5 - mainMenuBtnMargin/2,400],null),
+            dev_inf_btn : phi.object(uiImg.dev_inf_btn,[(innerWidth-uiImg.dev_inf_btn.width)/2 + uiImg.dev_inf_btn.width*0.5 + mainMenuBtnMargin/2,400],null),
+            main_menu_btn : phi.object(uiImg.main_menu_btn,[(innerWidth-uiImg.main_menu_btn.width)/2 + uiImg.main_menu_btn.width*1.5 + mainMenuBtnMargin*1.5,400],null),
+        },
+        waitingRoomUI:{
+            back_box : phi.object(uiImg.back_box,[(innerWidth-uiImg.back_box.width)/2,(innerHeight-uiImg.back_box.height)/2],null),
+            // make_room_btn : phi.object(uiImg.make_room_btn,[(innerWidth-uiImg.make_room_btn.width)/2 - 405,500],null),
+            // dev_inf_btn : phi.object(uiImg.dev_inf_btn,[(innerWidth-uiImg.dev_inf_btn.width)/2 - 405,600],null),
+            // main_menu_btn : phi.object(uiImg.main_menu_btn,[(innerWidth-uiImg.main_menu_btn.width)/2 - 405,700],null),
+            char_box : phi.object(uiImg.char_box,[(innerWidth-uiImg.char_box.width)/2 - 80,(innerHeight-uiImg.char_box.height)/2 + 45],null),
+            user_profile_0 : phi.object(uiImg.rect,[(innerWidth-uiImg.rect.width)/2 + 110,400],null),
+            user_profile_1 : phi.object(uiImg.rect,[(innerWidth-uiImg.rect.width)/2 + 110,500],null),
+            user_profile_2 : phi.object(uiImg.rect,[(innerWidth-uiImg.rect.width)/2 + 110,600],null),
+            user_profile_3 : phi.object(uiImg.rect,[(innerWidth-uiImg.rect.width)/2 + 110,700],null),
+            
+            user_infbar_0 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.short_bar.width)/2 + 365,400],null),
+            user_infbar_1 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.short_bar.width)/2 + 365,500],null),
+            user_infbar_2 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.short_bar.width)/2 + 365,600],null),
+            user_infbar_3 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.short_bar.width)/2 + 365,700],null),
+            
+        }
     }
 
+
+
+    
 
     window.rank = [];
     const res = await fetch("rank.json")
@@ -166,53 +198,26 @@ let click = false;
     }
 
     window.players = {
-        'p0':{
-            // nickname:'김대호',
-            // profile:0,
-            // description:'hello wordl!',
-            // skin:null,
-            // level:0,
-            // rank:0,
-        },
-        'p1':{
-            // nickname:'김동호',
-            // profile:0,
-            // description:'세계정복 같이하실분 모집합니다',
-            // skin:'test0',
-            // level:0,
-            // rank:0,
-        },
-        'p2':{
-            // nickname:'익명의누군가',
-            // profile:0,
-            // description:"안녕하세요",
-            // skin:'test1',
-            // level:0,
-            // rank:0,
-        },
-        'p3':{
-            // nickname:'PANCAKE',
-            // profile:0,
-            // description:"집가고싶다ㅠㅠ",
-            // skin:'test2',
-            // level:0,
-            // rank:0,
-        },
+        'p0':{},
+        'p1':{},
+        'p2':{},
+        'p3':{},
+
     }
 
-    // let playersDeck = {
+    let playersDeck = {
+        // 'p0':[],
+        // 'p1':[],
+        // 'p2':[],
+        // 'p3':[],
+    }
+    // playersDeck = {
     //     'p0':['SA','SK','SQ','SJ','S10','S9'],
     //     'p1':['DA','DK','DQ','DJ','D10','D9'],
     //     'p2':['HA','HK','HQ','HJ','H10'],
     //     'p3':['CA','CK','CQ','CJ','C10'],
     //     // 중복카드가 있으면 오류남. 주의! 
     // }
-    let playersDeck = {
-        'p0':[],
-        'p1':[],
-        'p2':[],
-        'p3':[],
-    }
     let posList = {
         'p0':[innerWidth/2,innerHeight-((cardSize[1]/2)*3)],
         'p1':[300,500],
@@ -221,9 +226,6 @@ let click = false;
     }
     const centerDeckPos = [(innerWidth - cardSize[0])/2 - 75,(innerHeight - cardSize[1])/2 + 150]
     const ver_line = phi.object(deck.TEST,[innerWidth/2,0],[1,innerHeight])
-    function Text(text,pos){
-        ctx.fillText(text, pos[0],pos[1]);
-    }
     let selectCard = null; 
     let lastCard = ''
     window.scrollTo({
@@ -232,31 +234,44 @@ let click = false;
     });
 
 
-    window.nickname = 'Anonymous' + phi.random(-10000000,10000000);
-    window.password = '';
-    window.profile = 0
-    window.description = '이게보인다면 에러다'
-    window.skin = 'test0'
-    window.level = 0
-    window.rank = 0
+    window.nickname = `USER${phi.random(0,200)}`;
+    window.password = '0000';
+    window.login = false;
+    window.profile = null;
+    window.description = null;
+    window.skin = null;
+    window.level = null;
+    window.rank = null;
+    
+    
+    online();
+
+    let selectFlag = false
+    let selectUI = null;
+
+
+    let selectDelay = 0
+    let selectLock = false
+
+    let codeInputSelect = false;
+    let codeInput = '';
+    let resetFixPos = false
+
+    let cusorDelay = 0;
+    let cusor = '';
 
     
-    let resetFixPos = false
     function addCard(player,card){
         resetFixPos = true
         playersDeck[player].push(card)
     }
 
-    online(); //온라인접속 시작
-    // addCard('p0','C3')
-
-    window.scene = 'menu-game';
-
-
+    window.scene = 'ofline';
     phi.mainLoop(() => {
         ctx.clearRect(0, 0, textCanvas.width, textCanvas.height);
         phi.fill(0.1,0.1,0.1,1)
         phi.blit(ver_line)
+        // Text('안녕하세요 이건 게임입니다!! 1234567890 @#*(*(!!)$#&',[0,50],'50px')
 
         if (window.scene == 'ingmae-onecard'){
             for(let pName in window.players){
@@ -375,14 +390,182 @@ let click = false;
     
             }
         } else if (window.scene == 'menu-game'){
-            for(let name in gameMenuUI){
-                const ui = gameMenuUI[name]
+            for(let name in uiSet.gameMenuUI){
+                const ui = uiSet.gameMenuUI[name]
+                if (name !== 'back_box'){
+                    let fixObj = phi.object(ui.img,[ui.startX,ui.startY],null)
+                    if (phi.isEncounterPos(fixObj,mousePos)){
+                        phi.moveY(ui,(ui.startY-10 -ui.y)/7)
+                        if (name == 'make_room_btn'){
+                            if (click && !selectLock){
+                                if (!selectFlag){
+                                    selectDelay = Date.now() + 300;
+                                    selectFlag = true;
+                                    selectLock = true;
+                                    selectUI = name
+                                    phi.moveY(ui,5)
+                                }
+                            }
+
+                        } else if (name == 'long_bar'){
+                            if (click && !selectLock){
+                                phi.moveY(ui,5)
+                                codeInputSelect = true
+                            }
+                        
+                        } else if (name == 'join_btn'){
+                            if (click && !selectLock){
+                                if (!selectFlag){
+                                    selectDelay = Date.now() + 300;
+                                    selectFlag = true;
+                                    selectLock = true;
+                                    selectUI = name
+                                    phi.moveY(ui,5)
+                                }
+                            }
+                        }
+
+
+                    } else {
+                        phi.moveY(ui,(ui.startY -ui.y)/10)
+                    }
+                    
+                    
+                }
                 phi.blit(ui)
+            }
+            
+
+
+            if (selectUI == 'make_room_btn'){
+                if (selectFlag && (selectDelay < Date.now())){
+                    window.sc.send(JSON.stringify({
+                        code:'0.3.0',
+                    }))
+                    selectFlag = false;
+                    selectLock = false;
+                }
+            } else if (selectUI == 'join_btn'){
+                if (selectFlag && (selectDelay < Date.now())){
+                    if (codeInput.length == 5){
+                        window.sc.send(JSON.stringify({
+                            code:'0.3.1',
+                            roomcode:codeInput.toUpperCase()
+                        }))
+                        console.log('⭐ 방에 참가요청을 보냄')
+                        selectFlag = false;
+                        selectLock = false;
+                        
+                    } else {
+                        alert('룸코드는 5자리여야 합니다.')
+                        selectFlag = false;
+                        selectLock = false;
+                        
+                    }
+                }
+            
+            } else if (selectUI == 'long_bar'){
+                if (!phi.isEncounterPos(fixObj,mousePos) && click){
+                    codeInputSelect = false
+                }
+            }
+
+            if (codeInputSelect && downKey){
+                if (downKey  == 'Backspace'){
+                    codeInput = codeInput.slice(0,-1)
+                    phi.moveY(uiSet.gameMenuUI['long_bar'],4)
+                } else if (alphabet.includes(downKey) && codeInput.length < 5){
+                    codeInput = codeInput + downKey
+                    codeInput.toUpperCase()
+                    phi.moveY(uiSet.gameMenuUI['long_bar'],-4)
+
+                }
+            }
+
+
+            if (codeInputSelect){
+                if (cusorDelay < Date.now()){
+                    cusorDelay = Date.now() + 500
+                    if (cusor){
+                        cusor = '';
+                    } else {
+                        cusor = '|'
+                    }
+                    if (codeInput.length == 5){
+                        cusor = ''
+                    }
+                }
+            } else {
+               cusor = ''
+            }
+
+            Text('룸코드:' + codeInput.toUpperCase() + cusor, [(uiSet.gameMenuUI['long_bar'].x + 400),uiSet.gameMenuUI['long_bar'].y+52], '50px', 'black')
+
+
+
+        } else if (window.scene == 'menu-waiting-room'){
+            for(let name in uiSet.waitingRoomUI){
+                const ui = uiSet.waitingRoomUI[name]
+                phi.blit(ui)
+                if (name !== 'back_box'){
+                    let fixObj = phi.object(ui.img,[ui.startX,ui.startY],null)
+                    if (phi.isEncounterPos(fixObj,mousePos)){
+                        phi.moveY(ui,(ui.startY-10 -ui.y)/7)
+                        // phi.blit(profileImg['test0'],[ui.x,ui.y],[ui.width,ui.height])
+                        
+                        
+                    } else {
+                        phi.moveY(ui,(ui.startY -ui.y)/10)
+                    }
+                    
+                    for(let strNum of ['0','1','2','3']){
+                        if (name == `user_infbar_${strNum}`){
+                            if (players[`p${strNum}`].description){
+                                let text = players[`p${strNum}`].nickname
+                                Text(text,[ui.x+30,ui.y+30],'24px','black')
+                                
+                                text = players[`p${strNum}`].level
+                                Text('레벨:'+text,[ui.x+300,ui.y+30],'20px','orange')
+
+                                text = players[`p${strNum}`].rank
+                                Text('랭크:'+text,[ui.x+300,ui.y+55],'20px','red')
+
+
+                                text = players[`p${strNum}`].description
+                                Text(text,[ui.x+25,ui.y+55],'17px','black')
+
+
+
+                                
+                            } else {
+                                Text('[플레이어 없음]',[ui.x+15,ui.y+44],'30px','black')
+                            }
+                        }
+                        if (name == `user_profile_${strNum}`){
+                            if (players[`p${strNum}`].profileObj){
+                                const obj = players[`p${strNum}`].profileObj
+                                phi.Goto(obj,[ui.x,ui.y])
+                                phi.reSizeBy(obj,ui.width/obj.width)
+                                phi.blit(obj)
+                            
+                            } else {
+                                const obj = phi.object(profileImg['noplayer'],[ui.x,ui.y],null)
+                                phi.reSizeBy(obj,ui.width/obj.width)
+                                phi.blit(obj)
+                                
+                            }
+                        }
+                    }
+
+                    
+
+
+                }
             }
         }
 
 
-
+        if(downKey){downKey=null}
         if(click){click=false;}
         if(resetFixPos){resetFixPos=false;}
 
@@ -402,4 +585,7 @@ document.addEventListener('click',()=>{
 })
 
 
+document.addEventListener('keydown',(e)=>{
+    downKey = e.key
+})
 

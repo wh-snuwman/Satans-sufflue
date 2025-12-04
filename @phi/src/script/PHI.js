@@ -48,7 +48,7 @@ export class PHI {
             startX : 0, 
             startY : 0,
             startWidth : 0,
-            startHeight : 0, 
+            startHeight : 0,
         };
 
         
@@ -99,9 +99,10 @@ export class PHI {
             obj.texcoord = texcoord;
         }
 
-
         return obj;
     }
+
+
 
     blit(obj_,mark='null'){
         const obj = {...obj_}
@@ -154,9 +155,6 @@ export class PHI {
         }
         return false
     }
-
-
-
     random(num1,num2){
         if (num1 > num2) {
             console.error('랜덤오류. 최솟값이 최댓값보다 클수 없습니다')
@@ -173,9 +171,6 @@ export class PHI {
         return (Math.random() * (num2 - num1)) + num1
     }
 
-    
-    
-    
     rotate(obj,deg,mark="center",pos=[0,0]){
         const rad = deg * Math.PI / 180;
         const cos = Math.cos(rad);
