@@ -14,7 +14,6 @@ export function online(){
     
     sc.onmessage = (event) => {
         let msg = JSON.parse(event.data);
-
         if (msg.code == '0.1.1') {
             console.log(`✅ 로그인성공: ${window.nickname}`)
             window.login = true
@@ -24,13 +23,13 @@ export function online(){
             window.level = msg.level
             window.rank = msg.rank
 
-            window.players[window.nickname] = {
-                nickname:window.nickname,
-                profile:window.profile,
-                level:window.level,
-                rank:window.rank,
-                description:window.description
-            }
+            // window.players[window.nickname] = {
+            //     nickname:window.nickname,
+            //     profile:window.profile,
+            //     level:window.level,
+            //     rank:window.rank,
+            //     description:window.description
+            // }
 
 
         } else if (msg.code == '0.1.0'){
@@ -39,35 +38,72 @@ export function online(){
 
         } else if (msg.code == '0.3.0.1') {
             window.roomCode = msg.roomcode
-            console.log(`✅ 새로운 룸에 참가했습니다! ${window.roomCode}`)
-            window.scene = 'menu-waiting-room'
             window.sceneStartFlag = false
-
-
+            window.scene = 'menu-waiting-room'
+            
+            window.sc.send(JSON.stringify({
+                code:'0.3.1',
+                roomcode:window.roomCode
+            }))
+            // console.log(`✅ 새로운 룸을 만들 ${window.roomCode}`)
+            
+            
         } else if (msg.code == '0.3.1.0') {
             window.roomCode = msg.roomcode
             console.log(`✅ 룸에 참가했습니다! ${window.roomCode}`)
-            window.scene = 'menu-waiting-room'
             window.sceneStartFlag = false
+            window.scene = 'menu-waiting-room'
 
-        } else if (msg.code == '0.3.1.1'){
+        } else if (msg.code == '0.3.1.1' || msg.code == '0.3.1.2'){
             window.players[msg.nickname] = {
                 nickname:msg.nickname,
                 profile:msg.profile,
                 level:msg.level,
                 rank:msg.rank,
-                description:msg.description
+                skin:msg.skin,
+                description:msg.description,
+                ready:false,
+            }
+        
+        } else if (msg.code == '0.3.1.3') {
+            console.log(`✅ ${msg.nickname}님이 룸에서 나가셨습니다`)
+            delete window.players[msg.nickname]
+        } else if (msg.code == '0.3.3') {
+            window.game = true;
+            window.sceneStartFlag = false
+            window.scene = 'ingmae-onecard'
+            
+            const rotatedPlayers = {};
+            let keys = Object.keys(window.players);
+            while (keys.length > 0 && keys[0] !== nickname) {
+                const firstKey = keys.shift(); 
+                keys.push(firstKey);           
+            }
+            for (const key of keys) {
+                rotatedPlayers[key] = window.players[key]; 
+            }
+            window.players = rotatedPlayers;
+            console.log(`🎲 플레이어 딕셔너리 수정완료: ${Object.keys(window.players)}`)
+            
+            const playersName = Object.keys(window.players);
+            const pName0 = playersName[0]
+            const pName1 = playersName[1]
+            const pName2 = playersName[2]
+            const pName3 = playersName[3]
+            
+            window.playersDeck[pName0] = [];
+            window.playersDeck[pName1] = [];
+            window.playersDeck[pName2] = [];
+            window.playersDeck[pName3] = [];
+
+            window.posList = {
+               [pName0]:posList.p0,
+               [pName1]:posList.p1,
+               [pName2]:posList.p2,
+               [pName3]:posList.p3,
             }
 
 
-        } else if (msg.code == '0.3.1.2') {
-            window.players[msg.nickname] = {
-                nickname:msg.nickname,
-                profile:msg.profile,
-                level:msg.level,
-                rank:msg.rank,
-                description:msg.description
-            }
         }
 
 
@@ -77,13 +113,14 @@ export function online(){
         console.log('‼️ 에러발생:'+ err)
     }
     
-    // sc.onclose = () => {
-    //     console.log('❗ 서버와의 연결이 종료 되었습니다.')
-    //     console.log('❗ 자동새로고침을 실행합니다.')
-    //     window.location.reload();
-    // }
+    sc.onclose = () => {
+        console.log('❗ 서버와의 연결이 종료 되었습니다.')
+        console.log('❗ 자동새로고침을 실행합니다.')
+        window.location.reload();
+    }
     
     sc.addEventListener('open', () => {
+        window.sceneStartFlag = false
         window.scene = 'menu-game';
         sc.send(JSON.stringify({ 
             code:"0.1",
@@ -91,6 +128,8 @@ export function online(){
             password: window.password, 
             anonymous:true 
         }));
+
+        
     });
 }
 

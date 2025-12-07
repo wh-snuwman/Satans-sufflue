@@ -27,6 +27,9 @@ export class PHI {
         return img_
     }
 
+    reSizeDisplay(){
+        this.app.resizeCanvas()
+    }
 
 
     display(size){

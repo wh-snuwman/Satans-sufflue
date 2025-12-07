@@ -10,13 +10,11 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
 (async () => {
     const phi = new PHI("canvas");
     const textCanvas = document.getElementById('text-canvas')
-    textCanvas.width = innerWidth
-    textCanvas.height = innerHeight
     const ctx = textCanvas.getContext('2d')
     const font = new FontFace('PF스타더스트', 'url(/src/font/PF스타더스트.ttf)');
     await font.load();
     document.fonts.add(font);
-
+    
     function Text(text,pos,size='20px',color='white',font='basic'){
         if (font == 'basic'){
             ctx.font = `${size} PF스타더스트`;
@@ -24,10 +22,11 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         ctx.fillStyle = color
         ctx.fillText(text, pos[0],pos[1]);
     }
-
-
-
+    
+    textCanvas.width = innerWidth
+    textCanvas.height = innerHeight
     phi.display([innerWidth,innerHeight]);
+
     const deck = {
         BACK:await phi.imgLoad('/src/img/deck/BACK.png'),
         TEST:await phi.imgLoad('/src/img/deck/TEST.png'),
@@ -125,11 +124,6 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         'test3':await phi.imgLoad('/src/img/profile/test3.png'),
     }
 
-    // const profileObj = []
-    // for (let i of profileImg){
-    //     profileObj[i] = phi.object(profileObj[profileImg[i]],[0,0],[100,100])
-    // }
-
     const uiImg = {
         back_box : await phi.imgLoad('/src/img/ui/back_box.png'),
         char_box : await phi.imgLoad('/src/img/ui/char_box.png'),
@@ -140,51 +134,23 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         rect : await phi.imgLoad('/src/img/ui/rect.png'),
         dev_inf_btn : await phi.imgLoad('/src/img/ui/dev_inf_btn.png'),
         short_bar : await phi.imgLoad('/src/img/ui/short_bar.png'),
+        ready_btn : await phi.imgLoad('/src/img/ui/ready_btn.png'),
+        ready_cancel_btn : await phi.imgLoad('/src/img/ui/ready_cancel_btn.png'),
     }
 
     const mainMenuBtnMargin = 40;
-    const uiSet = {
-        gameMenuUI : {
-            back_box : phi.object(uiImg.back_box,[(innerWidth-uiImg.back_box.width)/2,(innerHeight-uiImg.back_box.height)/2],null),
-            long_bar : phi.object(uiImg.long_bar,[(innerWidth-uiImg.long_bar.width)/2,300],null),
-            join_btn : phi.object(uiImg.join_btn,[(innerWidth-uiImg.join_btn.width)/2 - uiImg.join_btn.width*1.5 - mainMenuBtnMargin*1.5,400],null),
-            make_room_btn : phi.object(uiImg.make_room_btn,[(innerWidth-uiImg.make_room_btn.width)/2 - uiImg.make_room_btn.width*0.5 - mainMenuBtnMargin/2,400],null),
-            dev_inf_btn : phi.object(uiImg.dev_inf_btn,[(innerWidth-uiImg.dev_inf_btn.width)/2 + uiImg.dev_inf_btn.width*0.5 + mainMenuBtnMargin/2,400],null),
-            main_menu_btn : phi.object(uiImg.main_menu_btn,[(innerWidth-uiImg.main_menu_btn.width)/2 + uiImg.main_menu_btn.width*1.5 + mainMenuBtnMargin*1.5,400],null),
-        },
-        waitingRoomUI:{
-            back_box : phi.object(uiImg.back_box,[(innerWidth-uiImg.back_box.width)/2,(innerHeight-uiImg.back_box.height)/2],null),
-            long_bar : phi.object(uiImg.long_bar,[(innerWidth-uiImg.long_bar.width)/2,300],null),
-
-
-            user_profile_0 : phi.object(uiImg.rect,[(innerWidth-uiImg.back_box.width)/2 + 50,400],null),
-            user_profile_1 : phi.object(uiImg.rect,[(innerWidth-uiImg.back_box.width)/2 + 50,500],null),
-            user_profile_2 : phi.object(uiImg.rect,[(innerWidth-uiImg.back_box.width)/2 + 50,600],null),
-            user_profile_3 : phi.object(uiImg.rect,[(innerWidth-uiImg.back_box.width)/2 + 50,700],null),
-            
-            user_infbar_0 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.back_box.width)/2 + 150,400],null),
-            user_infbar_1 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.back_box.width)/2 + 150,500],null),
-            user_infbar_2 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.back_box.width)/2 + 150,600],null),
-            user_infbar_3 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.back_box.width)/2 + 150,700],null),
-            
-        }
-    }
-
-
-
-    
 
     window.rank = [];
     const res = await fetch("rank.json")
     const data = await res.json()
     window.rank = [...data.rank]
-    const deckSizeRatio = 0.5
-    const cardSize = [deck.BACK.width*deckSizeRatio,deck.BACK.height*deckSizeRatio]
+    window.deckSizeRatio = 0.5
+    window.cardSize = [deck.BACK.width*window.deckSizeRatio,deck.BACK.height*window.deckSizeRatio]
     window.cardsInf = []
     for (let i = 0; i<52; i++){
         cardsInf.push({
-            obj : phi.object(deck.TEST,[(innerWidth - cardSize[0])/2,(innerHeight - cardSize[1])/2],cardSize),
-            aprObj : phi.object(deck[window.rank[i]],[(innerWidth - cardSize[0])/2,(innerHeight - cardSize[1])/2],cardSize),
+            obj : phi.object(deck.TEST,[(innerWidth - window.cardSize[0])/2,(innerHeight - window.cardSize[1])/2],window.cardSize),
+            aprObj : phi.object(deck[window.rank[i]],[(innerWidth - window.cardSize[0])/2,(innerHeight - window.cardSize[1])/2],window.cardSize),
             isSelect: false,
             posFixFlag:false,
             pos1:[0,0],
@@ -196,36 +162,26 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         })
     }
 
-    
-    
-    window.
 
+    window.players = {}
+    window.playersDeck = {}
 
-
-
-    window.players = {
-
-    }
-
-    let playersDeck = {
-
-    }
-
-    let posList = {
-        'p0':[innerWidth/2,innerHeight-((cardSize[1]/2)*3)],
+    window.posList = {
+        'p0':[innerWidth/2,innerHeight-((window.cardSize[1]/2)*3)],
         'p1':[300,500],
         'p2':[innerWidth/2,400],
         'p3':[innerWidth-300,500],
     }
-    const centerDeckPos = [(innerWidth - cardSize[0])/2 - 75,(innerHeight - cardSize[1])/2 + 150]
+    const centerDeckPos = [(innerWidth - window.cardSize[0])/2 - 75,(innerHeight - window.cardSize[1])/2 + 150]
     const ver_line = phi.object(deck.TEST,[innerWidth/2,0],[1,innerHeight])
     let selectCard = null; 
-    let lastCard = ''
+    window.centerDeck = ''
+
     window.scrollTo({
         top:1274,
         behavior:'smooth'
     });
-
+    
 
     window.nickname = `USER${phi.random(0,200)}`;
     window.password = '0000';
@@ -235,37 +191,135 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     window.skin = null;
     window.level = null;
     window.rank = null;
-    
     window.sceneStartFlag = false
-    
+    window.ready = false
+
+    window.game = false;
     
     let selectFlag = false
     let selectUI = null;
     let selectDelay = 0
     let selectLock = false
+
+    window.dev = true;
+    online();
     
     let codeInputSelect = false;
     let codeInput = '';
+    
+    if (window.dev){
+        codeInput = 'AAAAA'
+    }
+
     let resetFixPos = false
     let cusorDelay = 0;
     let cusor = '';     
     
     
-    
     function addCard(player,card){
         resetFixPos = true
-        playersDeck[player].push(card)
+        window.playersDeck[player].push(card)
     }
     
     window.scene = 'ofline';
-    online();
+    // window.scene = 'menu-waiting-room';
+
+    let uiSet = {}
+    function resetUI(){ 
+        uiSet = {
+            gameMenuUI : {
+                back_box : phi.object(uiImg.back_box,[(innerWidth-uiImg.back_box.width)/2,(innerHeight-uiImg.back_box.height)/2],null),
+                long_bar : phi.object(uiImg.long_bar,[(innerWidth-uiImg.long_bar.width)/2,(innerHeight-uiImg.back_box.height)/2 + 50],null),
+                join_btn : phi.object(uiImg.join_btn,[(innerWidth-uiImg.join_btn.width)/2 - uiImg.join_btn.width*1.5 - mainMenuBtnMargin*1.5,(innerHeight-uiImg.back_box.height)/2 + 180],null),
+                make_room_btn : phi.object(uiImg.make_room_btn,[(innerWidth-uiImg.make_room_btn.width)/2 - uiImg.make_room_btn.width*0.5 - mainMenuBtnMargin/2,(innerHeight-uiImg.back_box.height)/2 + 180],null),
+                dev_inf_btn : phi.object(uiImg.dev_inf_btn,[(innerWidth-uiImg.dev_inf_btn.width)/2 + uiImg.dev_inf_btn.width*0.5 + mainMenuBtnMargin/2,(innerHeight-uiImg.back_box.height)/2 + 180],null),
+                main_menu_btn : phi.object(uiImg.main_menu_btn,[(innerWidth-uiImg.main_menu_btn.width)/2 + uiImg.main_menu_btn.width*1.5 + mainMenuBtnMargin*1.5,(innerHeight-uiImg.back_box.height)/2 + 180],null),
+            },
 
 
+            waitingRoomUI:{
+                back_box : phi.object(uiImg.back_box,[(innerWidth-uiImg.back_box.width)/2,(innerHeight-uiImg.back_box.height)/2],null),
+                long_bar : phi.object(uiImg.long_bar,[(innerWidth-uiImg.long_bar.width)/2,(innerHeight-uiImg.back_box.height)/2 + 50],null),
+                
+                ready_btn : phi.object(uiImg.ready_btn,[(innerWidth-uiImg.ready_btn.width)/2 + 100,(innerHeight-uiImg.back_box.height)/2 + 180],null),
+
+                user_profile_0 : phi.object(uiImg.rect,[(innerWidth-uiImg.back_box.width)/2 + 50,(innerHeight-uiImg.back_box.height)/2 + 170],null),
+                user_profile_1 : phi.object(uiImg.rect,[(innerWidth-uiImg.back_box.width)/2 + 50,(innerHeight-uiImg.back_box.height)/2 + 270],null),
+                user_profile_2 : phi.object(uiImg.rect,[(innerWidth-uiImg.back_box.width)/2 + 50,(innerHeight-uiImg.back_box.height)/2 + 370],null),
+                user_profile_3 : phi.object(uiImg.rect,[(innerWidth-uiImg.back_box.width)/2 + 50,(innerHeight-uiImg.back_box.height)/2 + 470],null),
+                user_infbar_0 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.back_box.width)/2 + 150,(innerHeight-uiImg.back_box.height)/2 + 170],null),
+                user_infbar_1 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.back_box.width)/2 + 150,(innerHeight-uiImg.back_box.height)/2 + 270],null),
+                user_infbar_2 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.back_box.width)/2 + 150,(innerHeight-uiImg.back_box.height)/2 + 370],null),
+                user_infbar_3 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.back_box.width)/2 + 150,(innerHeight-uiImg.back_box.height)/2 + 470],null),
+                
+            }
+        }
+    }
+    resetUI()
+
+
+    window.addEventListener('resize',(e)=>{
+        phi.reSizeDisplay()
+        resetUI()
+        textCanvas.width  = innerWidth;
+        textCanvas.height = innerHeight;
+    })
+    
+    
+
+    
     phi.mainLoop(() => {
+        if (downKey == 'q'){
+            // console.log(`💻 ${Object.keys(players)}`)
+            // console.log(`💻 ${Object.keys(playersDeck)}`)
+            const pName = Object.keys(players)
+
+            window.centerDeck = 'C2'
+
+            addCard(nickname,'SA')
+            addCard(nickname,'SK')
+            addCard(nickname,'SQ')
+            addCard(nickname,'SJ')
+            addCard(nickname,'S10')
+
+            addCard(pName[1],'DA')
+            addCard(pName[1],'DK')
+            addCard(pName[1],'DQ')
+            addCard(pName[1],'DJ')
+            addCard(pName[1],'D10')
+
+            addCard(pName[2],'HA')
+            addCard(pName[2],'HK')
+            addCard(pName[2],'HQ')
+            addCard(pName[2],'HJ')
+            addCard(pName[2],'H10')
+
+            addCard(pName[3],'CA')
+            addCard(pName[3],'CK')
+            addCard(pName[3],'CQ')
+            addCard(pName[3],'CJ')
+            addCard(pName[3],'C10')
+
+            window.center
+
+
+
+            console.log(`💻 ${(Object.values(players[nickname]))}`)
+        }
+
+
         ctx.clearRect(0, 0, textCanvas.width, textCanvas.height);
         phi.fill(0.1,0.1,0.1,1)
 
         if (window.scene == 'ingmae-onecard'){
+
+            // if(!window.sceneStartFlag){
+                
+            //     window.sceneStartFlag = true
+            // }
+
+
+
             for(let pName in window.players){
                 let playerInf = window.players[pName]
                 const nickname = playerInf.nickname
@@ -276,12 +330,12 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 const playerRank = playerInf.rank
                 
                 if (nickname){
-                    if (pName !== 'p0'){
+                    if (pName !== window.nickname){
                         phi.blit(skin[playerSkin].nomarl)
                     }
                 }
-                
             }
+
             for (let inf of window.cardsInf){
                 let obj = inf.obj
                 let apr_obj = inf.aprObj
@@ -289,31 +343,30 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 let owner = inf.owner
                 let show = inf.show
     
-                // console.log(playersDeck['p0'])
     
-                for (let pName in playersDeck){
-                    const myDeck = playersDeck[pName]
+                for (let pName in window.playersDeck){
+                    const myDeck = window.playersDeck[pName]
                     
                     if (myDeck.includes(rank)){
                         const cardNumber = myDeck.indexOf(rank)
     
-                        if (pName !== 'p0'){
+                        if (pName !== window.nickname){
                             phi.Goto(obj,
-                                [(posList[pName][0] - (myDeck.length * cardSize[0])/3.25) + cardNumber * cardSize[0]/2, 
-                                posList[pName][1]]
+                                [(window.posList[pName][0] - (myDeck.length * window.cardSize[0])/3.25) + cardNumber * window.cardSize[0]/2, 
+                                window.posList[pName][1]]
                             )
                             phi.rotate(obj,20- obj.angle)
                             
                         } else {
-                            // console.log(myDeck)
-    
+                            
                             phi.Goto(obj,
-                                [(posList[pName][0] - (myDeck.length * cardSize[0])/2)+ cardNumber * cardSize[0], 
-                                posList[pName][1]]
+                                [
+                                    (window.posList[pName][0] - (myDeck.length * window.cardSize[0])/2)+ cardNumber * window.cardSize[0], 
+                                    window.posList[pName][1]
+                                ]
                             )
+
                             phi.rotate(obj,10- obj.angle)
-    
-    
     
                             if (!inf.posFixFlag){
                                 inf.pos1 = [obj.x,obj.y]
@@ -328,14 +381,14 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                         owner = pName
                     }
     
-                    if (owner == 'p0' && (phi.isEncounterPos(obj,mousePos) && click)){
+                    if (owner == window.nickname && (phi.isEncounterPos(obj,mousePos))){
                         inf.isSelect  = !inf.isSelect
                         if (inf.isSelect){
                             selectCard = rank
                         }
                     }
     
-                    if (owner == 'p0'){
+                    if (owner == window.nickname){
                         if (selectCard == rank){
                             phi.Goto(obj,[inf.pos1[0],inf.pos1[1]-40])
                         } else {
@@ -345,16 +398,16 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     }
     
                     
-                    if (owner !== 'p0'){
+                    if (owner !== window.nickname){
                         show = false
                     } else {
                         show = true
                     }
     
                     if (owner == null){
-                        if (lastCard == rank){
+                        if (window.centerDeck == rank){
                             phi.Goto(obj,
-                                [centerDeckPos[0]+cardSize[0]*1.5,centerDeckPos[1]]
+                                [centerDeckPos[0]+window.cardSize[0]*1.5,centerDeckPos[1]]
                             )
                             show = true
                         } else {
@@ -370,7 +423,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 phi.moveX(apr_obj,((obj.x) - apr_obj.x) / 7)
                 phi.moveY(apr_obj,((obj.y) - apr_obj.y) / 7)
                 phi.rotate(apr_obj,((obj.angle) - apr_obj.angle) / 7)
-                Text(rank+' '+owner,[obj.x,obj.y+30])
+                // Text(rank+' '+owner,[obj.x,obj.y+30])
                 if (show){
                     phi.blit(apr_obj)
                 } else {
@@ -379,8 +432,10 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     phi.blit(obj_)
                 }
                 // phi.blit(obj)
-    
             }
+
+
+
         } else if (window.scene == 'menu-game'){
             if(!window.sceneStartFlag){
                 for(let name in uiSet.gameMenuUI){
@@ -393,6 +448,16 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
             for(let name in uiSet.gameMenuUI){
                 const ui = uiSet.gameMenuUI[name]
                 let fixObj = phi.object(ui.img,[ui.startX,ui.startY],null)
+                if(window.dev && name == 'join_btn'){
+                    window.sc.send(JSON.stringify({
+                        code:'0.3.1',
+                        roomcode:codeInput.toUpperCase()
+                    }))
+                    console.log('💻 방에 참가요청을 보냄')
+                    selectFlag = false;
+                    selectLock = false;
+                }
+
                 if (name != 'back_box' && phi.isEncounterPos(fixObj,mousePos)){
                         phi.moveY(ui,(ui.startY-10 -ui.y)/7)
                     
@@ -414,6 +479,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                         }
                     
                     } else if (name == 'join_btn'){
+
                         if (click && !selectLock){
                             if (!selectFlag){
                                 selectDelay = Date.now() + 300;
@@ -507,6 +573,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 }
                 window.sceneStartFlag = true
             }
+
+
             for(let name in uiSet.waitingRoomUI){
                 const ui = uiSet.waitingRoomUI[name]
                 phi.blit(ui)
@@ -558,11 +626,29 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 }
                 if (name == 'long_bar'){
                     Text('룸코드:' + window.roomCode, [(uiSet.waitingRoomUI['long_bar'].x + 400),uiSet.waitingRoomUI['long_bar'].y+52], '50px', 'black')
-                }
+                } else if (name == 'ready_btn'){
+
+                    if (phi.isEncounterPos(fixObj,mousePos) && click ){
+                        phi.moveY(ui,7)
+                        window.ready = !window.ready
+                        
+                        window.sc.send(JSON.stringify({
+                            code:'0.3.2',
+                            ready:window.ready
+                        }))
+
+                        if (window.ready){
+                            ui.img = uiImg.ready_cancel_btn
+                        } else {
+                            ui.img = uiImg.ready_btn
+
+                        }
+                    }
+
+                }   
 
             }
         }
-
 
         if(downKey){downKey=null}
         if(click){click=false;}

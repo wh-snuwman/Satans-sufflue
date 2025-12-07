@@ -191,6 +191,20 @@ export class easyWebgl2 {
         };
         requestAnimationFrame(loop);
     }
+
+
+    resizeCanvas() {
+        const dpr = window.devicePixelRatio || 1
+        const displayWidth  = Math.floor(this.gl.canvas.clientWidth  * dpr)
+        const displayHeight = Math.floor(this.gl.canvas.clientHeight * dpr)
+        if (this.gl.canvas.width !== displayWidth || this.gl.canvas.height !== displayHeight) {
+            this.gl.canvas.width  = displayWidth
+            this.gl.canvas.height = displayHeight
+            this.gl.viewport(0, 0, displayWidth, displayHeight)
+        }
+    }
+
+
 }
 
 
