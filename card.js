@@ -143,9 +143,10 @@ const onecard_attackCardAmount = {
     'DA':3,
     'HA':3,
     'CA':3,
+
     'SA':5,
-    
     'JB':5,
+
     'JC':7,
 };
 

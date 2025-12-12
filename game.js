@@ -142,6 +142,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         ready_btn : await phi.imgLoad('/src/img/ui/ready_btn.png'),
         ready_cancel_btn : await phi.imgLoad('/src/img/ui/ready_cancel_btn.png'),
         main_title : await phi.imgLoad('/src/img/ui/main_title.png'),
+        select_shape_bar : await phi.imgLoad('/src/img/ui/select_shape_bar.png'),
+        table : await phi.imgLoad('/src/img/ui/select_shape_bar.png'),
     }
 
     const backLoopImg = [
@@ -205,7 +207,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     }
 
     
-    console.log(backLoopObj)
+    // console.log(backLoopObj)
 
     const mainMenuBtnMargin = 40;
     window.oneCardSet = [];
@@ -261,10 +263,9 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     window.sceneStartFlag = false
     window.ready = false
     window.game = false;
-
     window.isAttack = false;
     window.attackAmount = 0
-
+    window.changeShape = null;
 
     let selectFlag = false
     let selectUI = null;
@@ -296,10 +297,33 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     
     
     window.scene = 'ofline';
-    // window.scene = 'menu-waiting-room';
+
+    let selectShapeAprObj = phi.object(uiImg.select_shape_bar,[(innerWidth-uiImg.select_shape_bar.width)/2,(innerHeight-uiImg.select_shape_bar.height)/2],null);
+    let shapeBtnSize = [uiImg.select_shape_bar.width/4,uiImg.select_shape_bar.height];
+    let shapeBtnRatio = 0.9
+    let shapeBtnResize = [shapeBtnSize[0] * shapeBtnRatio,shapeBtnSize[1] * shapeBtnRatio]
+    let shapeBtnMarginHor = shapeBtnSize[1]*(1-shapeBtnRatio)
+    let shapeBtnMarginVer = 10;
+    let shapeBtnDelay = 0
+
+    let selectShapeObjs = [
+        phi.object(deck.TEST,[(innerWidth-shapeBtnResize[0])/2- (shapeBtnResize[0] + shapeBtnMarginVer)*1.5,(innerHeight-uiImg.select_shape_bar.height)/2  + shapeBtnMarginHor/2],[shapeBtnSize[0]*shapeBtnRatio,shapeBtnSize[1]*shapeBtnRatio]),
+        phi.object(deck.TEST,[(innerWidth-shapeBtnResize[0])/2- (shapeBtnResize[0] + shapeBtnMarginVer)*0.5,(innerHeight-uiImg.select_shape_bar.height)/2  + shapeBtnMarginHor/2],[shapeBtnSize[0]*shapeBtnRatio,shapeBtnSize[1]*shapeBtnRatio]),
+        phi.object(deck.TEST,[(innerWidth-shapeBtnResize[0])/2- (shapeBtnResize[0] + shapeBtnMarginVer)*-0.5,(innerHeight-uiImg.select_shape_bar.height)/2  + shapeBtnMarginHor/2],[shapeBtnSize[0]*shapeBtnRatio,shapeBtnSize[1]*shapeBtnRatio]),
+        phi.object(deck.TEST,[(innerWidth-shapeBtnResize[0])/2- (shapeBtnResize[0] + shapeBtnMarginVer)*-1.5,(innerHeight-uiImg.select_shape_bar.height)/2  + shapeBtnMarginHor/2],[shapeBtnSize[0]*shapeBtnRatio,shapeBtnSize[1]*shapeBtnRatio]),
+    ];
+    
+    let openSelectShape = false;
+    let selectShape = null;
 
     let uiSet = {}
     function resetUI(){ 
+        phi.Goto(selectShapeAprObj,[(innerWidth-uiImg.select_shape_bar.width)/2,(innerHeight-uiImg.select_shape_bar.height)/2]);
+        phi.Goto(selectShapeObjs[0],[(innerWidth-shapeBtnResize[0])/2- (shapeBtnResize[0] + shapeBtnMarginVer)*1.5,(innerHeight-uiImg.select_shape_bar.height)/2  + shapeBtnMarginHor/2],[shapeBtnSize[0]*shapeBtnRatio,shapeBtnSize[1]*shapeBtnRatio]);
+        phi.Goto(selectShapeObjs[1],[(innerWidth-shapeBtnResize[0])/2- (shapeBtnResize[0] + shapeBtnMarginVer)*0.5,(innerHeight-uiImg.select_shape_bar.height)/2  + shapeBtnMarginHor/2],[shapeBtnSize[0]*shapeBtnRatio,shapeBtnSize[1]*shapeBtnRatio]);
+        phi.Goto(selectShapeObjs[2],[(innerWidth-shapeBtnResize[0])/2- (shapeBtnResize[0] + shapeBtnMarginVer)*-0.5,(innerHeight-uiImg.select_shape_bar.height)/2  + shapeBtnMarginHor/2],[shapeBtnSize[0]*shapeBtnRatio,shapeBtnSize[1]*shapeBtnRatio]);
+        phi.Goto(selectShapeObjs[3],[(innerWidth-shapeBtnResize[0])/2- (shapeBtnResize[0] + shapeBtnMarginVer)*-1.5,(innerHeight-uiImg.select_shape_bar.height)/2  + shapeBtnMarginHor/2],[shapeBtnSize[0]*shapeBtnRatio,shapeBtnSize[1]*shapeBtnRatio]);
+        
         uiSet = {
             gameMenuUI : {
                 back_box : phi.object(uiImg.back_box,[(innerWidth-uiImg.back_box.width)/2,(innerHeight-uiImg.back_box.height)/2],null),
@@ -344,21 +368,20 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     addLoopObj(backLoopImg[0]);
     addLoopObj(backLoopImg[0]);
     addLoopObj(backLoopImg[0]);
+    
 
 
     for (let i=0; i < ((window.innerWidth / 120)+2)/2; i++){
         const randint = phi.random(2,10)
-        console.log([i*120 - backLoopImg[randint].width/2, - backLoopImg[randint].height/2])
+        // console.log([i*120 - backLoopImg[randint].width/2, - backLoopImg[randint].height/2])
         addLoopObj(backLoopImg[randint],[i*240 - backLoopImg[randint].width/2, - backLoopImg[randint].height/2]);
     }
 
 
     
     phi.mainLoop(() => {
-
-        
         ctx.clearRect(0, 0, textCanvas.width, textCanvas.height);
-        phi.fill(51/255,173/255,91/255,1)
+        phi.fill(24/255,118/255,70/255,1)
         
         loopSet(1,0,1,10);
         loopSet(1,2,3,innerHeight-10-backLoopObj[1].height);
@@ -436,7 +459,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                         owner = pName
                     }
     
-                    if (owner == window.nickname && phi.isEncounterPos(obj, mousePos) && click){
+                    if (!openSelectShape && owner == window.nickname && phi.isEncounterPos(obj, mousePos) && click && !openSelectShape){
                         inf.isSelect = true
                         selectCard = rank
                     }
@@ -444,26 +467,32 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     if (owner == window.nickname){
                         if (selectCard == rank){
                             phi.Goto(obj,[inf.pos1[0],inf.pos1[1]-40])
-                            if (click && canDrop(selectCard,window.centerDeck,false) && !window.dropFlag && turn == window.nickname){
+                            if (click && canDrop(selectCard,window.centerDeck,window.isAttack,window.changeShape) && !window.dropFlag && turn == window.nickname){
                                 
+                                let canSend = false;
 
                                 if (window.isAttack){
-                                    if (onecard_attackCard.includes(selectCard) && canDrop(selectCard,window.centerDeck,false)){
+                                    if (onecard_attackCard.includes(selectCard) && canDrop(selectCard,window.centerDeck,window.isAttack,window.changeShape)){
+                                        canSend = true;
+                                    }
+                                } else {canSend = true;}
+
+                                if (canSend == true){
+                                    if (openSelectShape) continue; 
+
+                                    if (selectCard[1] == '7'){
+                                        window.dropFlag = true;
+                                        openSelectShape = true
+                                    } else {
                                         window.dropFlag = true;
                                         window.sc.send(JSON.stringify({
                                             code:"0.4.0.1.0",
                                             card:selectCard
                                         }))
-                                    }
-                                } else {
-                                    window.dropFlag = true;
-                                    window.sc.send(JSON.stringify({
-                                        code:"0.4.0.1.0",
-                                        card:selectCard
-                                    }))
-                                }
+                                        console.log('메세지 송신1')
 
-                                
+                                    }
+                                }
                             }
 
 
@@ -514,6 +543,45 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
             }
 
             
+            
+            // ===============================================================================================
+            if (openSelectShape){
+                phi.blit(selectShapeAprObj)
+                for (let num in selectShapeObjs){
+                    const btn = selectShapeObjs[num]
+                    if (phi.isEncounterPos(btn,mousePos) && click){
+                        if (num == 0){
+                            selectShape = 'C'
+                        } else if (num == 1){
+                            selectShape = 'S'
+                        } else if (num == 2){
+                            selectShape = 'D'
+                        } else {
+                            selectShape = 'H'
+                        }
+                        shapeBtnDelay = Date.now() + 400
+                        phi.moveY(selectShapeAprObj,-7)
+                        break
+                    }
+                }
+            }
+            
+            if (selectShape && shapeBtnDelay < Date.now()){
+                console.log('메세지 송신2')
+                openSelectShape = false;
+                window.sc.send(JSON.stringify({
+                    code:"0.4.0.1.0",
+                    card:selectCard,
+                    changeshape:selectShape,
+                }))
+                selectShape = null;
+            }
+
+            phi.moveY(selectShapeAprObj,(selectShapeAprObj.startY - selectShapeAprObj.y)/10)
+            
+            // ===============================================================================================
+            
+            
             if (phi.isEncounterPos(centerDeckObj,mousePos) && click && turn == window.nickname) {
                 window.sc.send(JSON.stringify({
                     code:"0.4.0.0.0",
@@ -528,7 +596,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
 
 
 
-            console.log(window.isAttack)
+            // console.log(window.isAttack)
             if (!window.isAttack){
                 Text('공격이 없습니다',[20,100],'40px','green')
             } else {
@@ -749,6 +817,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
 
             }
         }
+
+        // phi.blit(ver_line)
 
         if(downKey){downKey=null}
         if(click){click=false;}

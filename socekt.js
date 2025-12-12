@@ -5,7 +5,7 @@ const phi = new PHI("canvas");
 
 export function online(){
     window.sc = new WebSocket('ws://127.0.0.1:3000/')
-    window.roomCode = null;
+    window.roomCode = null; 
 
     sc.onopen = () => {
         console.log('✅ 서버에 연결 되었습니다!')
@@ -107,7 +107,7 @@ export function online(){
         } else if (msg.code == '0.4.0.0') {
             // window.playersDeck[msg.player].push(msg.card)
             addCard(msg.player,msg.card)
-            console.log(msg.card)
+            // console.log(msg.card)
 
 
         } else if (msg.code == '0.4.0.1') {
@@ -119,6 +119,8 @@ export function online(){
 
         }else if (msg.code == '0.4.1.0'){
             window.centerDeck = msg.card
+            window.changeShape = msg.cahngeshape
+
             console.log('✅ 센터카드 받음!')
 
         }else if (msg.code == '0.4.1.1'){
