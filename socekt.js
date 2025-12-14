@@ -1,5 +1,6 @@
 
 import {PHI} from "/@phi/src/script/PHI.js"
+import  {onecard_attackCard,onecard_attackCardAmount,onecard_cards} from '/card.js'
 
 const phi = new PHI("canvas");
 
@@ -17,6 +18,8 @@ export function online(){
         if (msg.code == '0.1.1') {
             console.log(`✅ 로그인성공: ${window.nickname}`)
             newSignal(`✅ 로그인성공`)
+            window.nickname = msg.nickname
+            // window.pass = msg.nickname
 
             window.login = true
             window.profile = msg.profile
@@ -154,6 +157,61 @@ export function online(){
 
             console.log('❌ 가입실패. 닉네임 중복')
             
+        }else if (msg.code == '0.4.4.1.0'){
+            window.winner = msg.winner
+            window.ready = false
+            gameSet = true;
+            window.scene = 'menu-winner'
+            window.playersDeck = {}
+            window.drawPile = []
+            window.centerDeck = ''
+            window.posList = {
+                'p0':[innerWidth/2,innerHeight-((window.cardSize[1]/2)*3)],
+                'p1':[300,500],
+                'p2':[innerWidth/2,400],
+                'p3':[innerWidth-300,500],
+            }
+
+            
+            resetUI()
+
+            
+            window.cardsInf = []
+            for (let i = 0; i<54; i++){
+                cardsInf.push({
+                    obj : phi.object(deck.TEST,[(innerWidth - window.cardSize[0])/2,(innerHeight - window.cardSize[1])/2],window.cardSize),
+                    aprObj : phi.object(deck[window.oneCardSet[i]],[(innerWidth - window.cardSize[0])/2,(innerHeight - window.cardSize[1])/2],window.cardSize),
+                    isSelect: false,
+                    posFixFlag:false,
+                    pos1:[0,0],
+                    pos2:[0,0],
+                    rank:window.oneCardSet[i],
+                    show:true,
+                    owner:null,
+                    preClick:false,
+                })
+            }
+
+
+
+        }else if (msg.code == ''){
+            
+        }else if (msg.code == ''){
+            
+        }else if (msg.code == ''){
+            
+        }else if (msg.code == ''){
+            
+        }else if (msg.code == ''){
+            
+        }else if (msg.code == ''){
+            
+        }else if (msg.code == ''){
+            
+        }else if (msg.code == ''){
+            
+        }else if (msg.code == ''){
+            
         }else if (msg.code == ''){
             
         }
@@ -175,7 +233,7 @@ export function online(){
         window.sceneStartFlag = false
         window.scene = 'menu-main';
         // ============================== debug ============================== //
-        // window.scene = 'menu-sign-up';
+        // window.scene = 'menu-winner';
 
         //TODO  ============================== debug ============================== //
         

@@ -35,7 +35,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     textCanvas.height = innerHeight
     phi.display([innerWidth,innerHeight]);
 
-    const deck = {
+    window.deck = {
         JB:await phi.imgLoad('/src/img/deck/JB.png'),
         JC:await phi.imgLoad('/src/img/deck/JC.png'),
 
@@ -157,6 +157,16 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         back_box_basic: await phi.imgLoad('/src/img/ui/back_box_basic.png'),
         signal_bar: await phi.imgLoad('/src/img/ui/signal_bar.png'),
 
+
+        discord_icon: await phi.imgLoad('/src/img/ui/discord_icon.png'),
+        DGL_icon: await phi.imgLoad('/src/img/ui/DGL_icon.png'),
+        instagram_icon: await phi.imgLoad('/src/img/ui/instagram_icon.png'),
+        back_btn: await phi.imgLoad('/src/img/ui/back_btn.png'),
+        state_bar: await phi.imgLoad('/src/img/ui/state_bar.png'),
+        crown: await phi.imgLoad('/src/img/ui/crown.png'),
+        confirm_btn: await phi.imgLoad('/src/img/ui/confirm_btn.png'),
+        winner_profile_rect: await phi.imgLoad('/src/img/ui/winner_profile_rect.png'),
+
     }
 
     const backLoopImg = [
@@ -226,7 +236,6 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     // console.log(backLoopObj)
 
     const mainMenuBtnMargin = 40;
-    window.oneCardSet = [];
     window.oneCardSet = [...onecard_cards]
     window.deckSizeRatio = 0.5
     window.cardSize = [deck.BACK.width*window.deckSizeRatio,deck.BACK.height*window.deckSizeRatio]
@@ -280,13 +289,19 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     window.description = null;
     window.skin = null;
     window.level = null;
-    window.oneCardSet = null;
+    // window.oneCardSet = null;
     window.sceneStartFlag = false
     window.ready = false
     window.game = false;
     window.isAttack = false;
     window.attackAmount = 0
     window.changeShape = null;
+
+    window.winner = null;
+    window.gameSet = false;
+
+    window.menuReset
+    // window.sceneChangeDelay = 0;
 
     let selectFlag = false
     let selectUI = null;
@@ -295,7 +310,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
 
 
     // ================== TODO ================ //
-    window.dev = true;
+    window.dev = false;
     // ================== TODO ================ //
 
     window.addCard = (player,card) =>{
@@ -356,8 +371,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     let openSelectShape = false;
     let selectShape = null;
 
-    let uiSet = {}
-    function resetUI(){ 
+    window.uiSet = {}
+    window.resetUI = function(){ 
         phi.Goto(selectShapeAprObj,[(innerWidth-uiImg.select_shape_bar.width)/2,(innerHeight-uiImg.select_shape_bar.height)/2]);
         phi.Goto(selectShapeObjs[0],[(innerWidth-shapeBtnResize[0])/2- (shapeBtnResize[0] + shapeBtnMarginVer)*1.5,(innerHeight-uiImg.select_shape_bar.height)/2  + shapeBtnMarginHor/2],[shapeBtnSize[0]*shapeBtnRatio,shapeBtnSize[1]*shapeBtnRatio]);
         phi.Goto(selectShapeObjs[1],[(innerWidth-shapeBtnResize[0])/2- (shapeBtnResize[0] + shapeBtnMarginVer)*0.5,(innerHeight-uiImg.select_shape_bar.height)/2  + shapeBtnMarginHor/2],[shapeBtnSize[0]*shapeBtnRatio,shapeBtnSize[1]*shapeBtnRatio]);
@@ -392,6 +407,14 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 input_bar_password : phi.object(uiImg.input_bar,[(innerWidth-uiImg.input_bar.width)/2,(innerHeight-uiImg.input_bar.height)/2 + 40],null),
                 submit_btn : phi.object(uiImg.login_btn,[(innerWidth-uiImg.login_btn.width)/2,(innerHeight-uiImg.login_btn.height)/2 + 360],null),
             },
+
+            menuWinner:{
+                back_box_basic : phi.object(uiImg.back_box_basic,[(innerWidth-uiImg.back_box_basic.width)/2,(innerHeight-uiImg.back_box_basic.height)/2],null),
+                winner_profile_rect : phi.object(uiImg.winner_profile_rect,[(innerWidth-uiImg.winner_profile_rect.width)/2 - 300,(innerHeight-uiImg.winner_profile_rect.height)/2],null),
+                crown : phi.object(uiImg.crown,[(innerWidth-uiImg.crown.width)/2-300,(innerHeight-uiImg.crown.height)/2-100],null),
+                confirm_btn : phi.object(uiImg.confirm_btn,[(innerWidth-uiImg.confirm_btn.width)/2,(innerHeight-uiImg.confirm_btn.height)/2 + 360],null),
+                
+            },
             
             waitingRoomUI:{
                 back_box : phi.object(uiImg.back_box,[(innerWidth-uiImg.back_box.width)/2,(innerHeight-uiImg.back_box.height)/2],null),
@@ -406,7 +429,15 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 user_infbar_2 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.back_box.width)/2 + 150,(innerHeight-uiImg.back_box.height)/2 + 370],null),
                 user_infbar_3 : phi.object(uiImg.short_bar,[(innerWidth-uiImg.back_box.width)/2 + 150,(innerHeight-uiImg.back_box.height)/2 + 470],null),
                 
+            },
+            common:{
+                discord_icon : phi.object(uiImg.discord_icon,[(innerWidth-uiImg.discord_icon.width) - 190,(innerHeight-uiImg.discord_icon.height)-20],null),
+                DGL_icon : phi.object(uiImg.DGL_icon,[(innerWidth-uiImg.DGL_icon.width)-100,(innerHeight-uiImg.DGL_icon.height)-20],null),
+                instagram_icon : phi.object(uiImg.instagram_icon,[(innerWidth-uiImg.instagram_icon.width)-20,(innerHeight-uiImg.instagram_icon.height)-20],null),
+
             }
+
+            
         }
     }
     resetUI()
@@ -1226,6 +1257,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
 
             if (selectFlag && (selectDelay < Date.now())){
                 if (inputDatas.loginPw.length > 0 && inputDatas.loginNick.length > 0){
+                    password = inputDatas.loginPw
                     sc.send(JSON.stringify({ 
                         code:"0.1",
                         nickname: inputDatas.loginNick,
@@ -1272,10 +1304,91 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
             // // #endregion
 
             }
+        } else if (window.scene == 'menu-winner'){
+            
+            if (!window.sceneStartFlag){
+                for(let name in uiSet.menuWinner){
+                    const ui = uiSet.menuWinner[name]
+                    phi.moveY(ui,-10)
+                    if (name == 'crown'){
+                        phi.moveY(ui,30)
+
+                    }
+                }
+                window.sceneStartFlag = true
+            }
+
+            for(let name in uiSet.menuWinner){
+                const ui = uiSet.menuWinner[name]
+                phi.blit(ui)
+                let fixObj = phi.object(ui.img,[ui.startX,ui.startY],null)
+                if (name != 'back_box_basic' && phi.isEncounterPos(fixObj,mousePos) && name != 'winner_profile_rect'){
+                    phi.moveY(ui,(ui.startY-10 -ui.y)/7)
+                    
+                } else {
+                    phi.moveY(ui,(ui.startY -ui.y)/10)
+                }
+
+                if (name == 'winner_profile_rect'){
+                    if (players[window.winner]){
+                        const obj = phi.object(profileImg[players[window.winner].profile],[ui.x,ui.y],[ui.width,ui.height])
+                        Text(window.winner,[ui.x+190,ui.y + 100],'80px','white')
+                        phi.blit(obj)
+
+                        
+                    } else {
+                        const obj = phi.object(profileImg['noplayer'],[ui.x,ui.y],[ui.width,ui.height])
+                        Text('ERROR',[ui.x+190,ui.y + 100],'80px','white')
+                        phi.blit(obj)
+                    }
+                } else if (name == 'confirm_btn'){
+                    if (phi.isEncounterPos(ui,mousePos) && click){
+                        window.sceneStartFlag = false
+                        window.scene = 'menu-waiting-room'
+                    }
+                }
+            }
         }
 
-        
-        
+        if (scene != 'ingame-onecard'){
+            Text('copyright 2025 white studio. All rights reserved', [0,innerHeight-10], '20px', 'white')
+            
+            
+            phi.blit(uiSet.discord_icon,[0,0],null)
+            for (let name in uiSet.common){
+                let ui = uiSet.common[name];
+                
+                let fixObj = phi.object(ui.img,[ui.startX,ui.startY],null)
+                if (name != 'back_box' && phi.isEncounterPos(fixObj,mousePos)){
+                    phi.moveY(ui,(ui.startY-10 -ui.y)/7)
+                    
+                } else {
+                    phi.moveY(ui,(ui.startY -ui.y)/10)
+                }
+                phi.moveX(ui,(ui.startX -ui.x)/10)
+                phi.blit(ui)
+                
+                
+                if (name == 'discord_icon'){
+                    if (phi.isEncounterPos(ui,mousePos) && click){
+                        window.open('https://discord.gg/Ygabz7qZfs')
+                    }
+                } else if (name == 'DGL_icon'){
+                    if (phi.isEncounterPos(ui,mousePos) && click){
+                        window.open('https://www.instagram.com/hanbyeol_digitalleader/')
+                    }
+                } else if (name == 'instagram_icon'){
+                    if (phi.isEncounterPos(ui,mousePos) && click){
+                        window.open('https://www.instagram.com/wh.snuwman/')
+                    }
+                }
+
+
+
+            }
+        }
+
+
         phi.blit(signal.obj)
         if (signal.timer > Date.now()){
             phi.moveY(signal.obj,(signal.obj.startY - signal.obj.y)/7)
@@ -1283,6 +1396,9 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
             phi.moveY(signal.obj,(signal.obj.startY-150 - signal.obj.y)/7)
         }
         Text(signal.text, [(innerWidth/2),signal.obj.y+48], '40px', 'black',undefined,'center')
+
+
+
 
 
         if(downKey){downKey=null}
