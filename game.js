@@ -114,16 +114,15 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
 
     const skin = {
         'test0':{
-            nomarl:phi.object(skinImg[0],[180,230],null),
-            speak:phi.object(skinImg[0],[0,0],null),
+            nomarl:phi.reSizeBy(phi.object(skinImg[0],[70,80],null),0.8),
+
         },
         'test1':{
-            nomarl:phi.object(skinImg[1],[870,130],null),
-            speak:phi.object(skinImg[1],[0,0],null),
+            nomarl:phi.reSizeBy(phi.object(skinImg[1],[765,-20],null),0.8),
+
         },
         'test2':{
-            nomarl:phi.object(skinImg[2],[1530,230],null),
-            speak:phi.object(skinImg[2],[0,0],null),
+            nomarl:phi.reSizeBy(phi.object(skinImg[2],[1460,80],null),0.8),
         },
     }
 
@@ -149,7 +148,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         ready_cancel_btn : await phi.imgLoad('/src/img/ui/ready_cancel_btn.png'),
         main_title : await phi.imgLoad('/src/img/ui/main_title.png'),
         select_shape_bar : await phi.imgLoad('/src/img/ui/select_shape_bar.png'),
-        table : await phi.imgLoad('/src/img/ui/select_shape_bar.png'),
+        table : await phi.imgLoad('/src/img/ui/table.png'),
         start_btn: await phi.imgLoad('/src/img/ui/start_btn.png'),
         sign_up_btn: await phi.imgLoad('/src/img/ui/sign_up_btn.png'),
         login_btn: await phi.imgLoad('/src/img/ui/login_btn.png'),
@@ -310,7 +309,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
 
 
     // ================== TODO ================ //
-    window.dev = false;
+    window.dev = true;
     // ================== TODO ================ //
 
     window.addCard = (player,card) =>{
@@ -435,6 +434,10 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 DGL_icon : phi.object(uiImg.DGL_icon,[(innerWidth-uiImg.DGL_icon.width)-100,(innerHeight-uiImg.DGL_icon.height)-20],null),
                 instagram_icon : phi.object(uiImg.instagram_icon,[(innerWidth-uiImg.instagram_icon.width)-20,(innerHeight-uiImg.instagram_icon.height)-20],null),
 
+            },
+            ingameOnecard:{
+                table : phi.object(uiImg.table,[(innerWidth-uiImg.table.width),(innerHeight-uiImg.table.height)+150],null),
+
             }
 
             
@@ -488,7 +491,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
 
     ]
 
-
+    let pass = 0;
 
     window.signal ={
         obj:phi.object(uiImg.signal_bar,[(innerWidth - uiImg.signal_bar.width)/2,(innerHeight - uiImg.signal_bar.height)/2 - 380],null),
@@ -553,20 +556,21 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         }
 
         if (window.scene == 'ingmae-onecard'){
+            let num = 0
             for(let pName in window.players){
-                let playerInf = window.players[pName]
-                const nickname = playerInf.nickname
-                const profile = playerInf.profile
-                const description = playerInf.description
-                const playerSkin = playerInf.skin
-                const level = playerInf.level
-                const playerRank = playerInf.rank
-                
-                if (nickname){
+                if (pName){
                     if (pName !== window.nickname){
-                        phi.blit(skin[playerSkin].nomarl)
+                        console.log(`test${num}`)
+                        phi.blit(skin[`test${num}`].nomarl)
+                        num++
                     }
                 }
+            }
+
+
+            for (let name in uiSet.ingameOnecard){
+                let ui = uiSet.ingameOnecard[name]
+                phi.blit(ui)
             }
 
             for (let inf of window.cardsInf){
@@ -640,11 +644,12 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                                         openSelectShape = true
                                     } else {
                                         window.dropFlag = true;
+                                        pass = 0
                                         window.sc.send(JSON.stringify({
                                             code:"0.4.0.1.0",
                                             card:selectCard
                                         }))
-                                        console.log('메세지 송신1')
+                                        // console.log('메세지 송신1')
 
                                     }
                                 }
@@ -694,12 +699,9 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     obj_.img = deck.BACK
                     phi.blit(obj_)
                 }
-                // phi.blit(obj)
             }
 
-            
-            
-            // ===============================================================================================
+ 
             if (openSelectShape){
                 phi.blit(selectShapeAprObj)
                 for (let num in selectShapeObjs){
@@ -722,7 +724,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
             }
             
             if (selectShape && shapeBtnDelay < Date.now()){
-                console.log('메세지 송신2')
+                // console.log('메세지 송신2')
                 openSelectShape = false;
                 window.sc.send(JSON.stringify({
                     code:"0.4.0.1.0",
@@ -733,30 +735,41 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
             }
 
             phi.moveY(selectShapeAprObj,(selectShapeAprObj.startY - selectShapeAprObj.y)/10)
-            
-            // ===============================================================================================
-            
-            
+
             if (phi.isEncounterPos(centerDeckObj,mousePos) && click && turn == window.nickname) {
-                window.sc.send(JSON.stringify({
-                    code:"0.4.0.0.0",
-                }))
+                if (playersDeck[window.nickname].length < 12){
+                    pass = 0
+                    window.sc.send(JSON.stringify({
+                        code:"0.4.0.0.0",
+                        pass:false
+                    }))
+                } else {
+                    if (pass == 2){
+                        pass = 0
+
+                         window.sc.send(JSON.stringify({
+                            code:"0.4.0.0.0",
+                            pass:true
+                        }))
+
+                    } else {
+                        newSignal(`❌ 더이상 가져갈수 없습니다!. ${2-pass}번더 클릭시 패스됩니다`)
+                        pass++;
+                    }
+                }
                 
             }
-            if (turn == window.nickname){
-                Text('당신의 차례 입니다!',[20,40],'40px','green')
-            } else {
-                Text('당신의 차례가 아닙니다',[20,40],'40px','red')
-            }
+            // if (turn == window.nickname){
+            //     Text('당신의 차례 입니다!',[20,40],'40px','green')
+            // } else {
+            //     Text('당신의 차례가 아닙니다',[20,40],'40px','red')
+            // }
 
-
-
-            // console.log(window.isAttack)
-            if (!window.isAttack){
-                Text('공격이 없습니다',[20,100],'40px','green')
-            } else {
-                Text(`공격을 받았습니다!${window.attackAmount}`,[20,100],'40px','red')
-            }
+            // if (!window.isAttack){
+            //     Text('공격이 없습니다',[20,100],'40px','green')
+            // } else {
+            //     Text(`공격을 받았습니다!${window.attackAmount}`,[20,100],'40px','red')
+            // }
 
 
         } else if (window.scene == 'menu-game'){
@@ -794,6 +807,27 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     
                     } else if (name == 'join_btn'){
 
+                        if (click && !selectLock){
+                            if (!selectFlag){
+                                selectDelay = Date.now() + 300;
+                                selectFlag = true;
+                                selectLock = true;
+                                selectUI = name
+                                phi.moveY(ui,5)
+                            }
+                        }
+                    } else if (name == 'dev_inf_btn'){
+
+                        if (click && !selectLock){
+                            if (!selectFlag){
+                                selectDelay = Date.now() + 300;
+                                selectFlag = true;
+                                selectLock = true;
+                                selectUI = name
+                                phi.moveY(ui,5)
+                            }
+                        }
+                    } else if (name == 'main_menu_btn'){
                         if (click && !selectLock){
                             if (!selectFlag){
                                 selectDelay = Date.now() + 300;
@@ -844,7 +878,16 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 if (!phi.isEncounterPos(fixObj,mousePos) && click){
                     codeInputSelect = false
                 }
+            } else if (selectUI =='main_menu_btn'){
+                if (selectFlag && (selectDelay < Date.now())){
+                    window.open('https://m.blog.naver.com/kyp2255/222074480823')
+                    selectFlag = false;
+                    selectLock = false;
+                }
             }
+
+
+
 
             if (codeInputSelect && downKey){
                 if (downKey  == 'Backspace'){
@@ -1060,7 +1103,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     }
                     if (inputSelects.signUpNick){
                         if (downKey && !BanLetter.includes(downKey)){
-                            console.log(downKey)
+                            // console.log(downKey)
                             if (downKey == 'Backspace'){
                                 inputDatas.signUpNick = inputDatas.signUpNick.slice(0,-1)
                             } else {
@@ -1081,7 +1124,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     }
                     if (inputSelects.signUpPw){
                         if (downKey && !BanLetter.includes(downKey)){
-                            console.log(downKey)
+                            // console.log(downKey)
                             if (downKey == 'Backspace'){
                                 inputDatas.signUpPw = inputDatas.signUpPw.slice(0,-1)
                             } else {
@@ -1099,7 +1142,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     }
                     if (inputSelects.signUpPwC){
                         if (downKey && !BanLetter.includes(downKey)){
-                            console.log(downKey)
+                            // console.log(downKey)
                             if (downKey == 'Backspace'){
                                 inputDatas.signUpPwC = inputDatas.signUpPwC.slice(0,-1)
                             } else {
@@ -1216,7 +1259,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     }
                     if (inputSelects.loginNick){
                         if (downKey && !BanLetter.includes(downKey)){
-                            console.log(downKey)
+                            // console.log(downKey)
                             if (downKey == 'Backspace'){
                                 inputDatas.loginNick = inputDatas.loginNick.slice(0,-1)
                             } else {
@@ -1237,7 +1280,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     }
                     if (inputSelects.loginPw){
                         if (downKey && !BanLetter.includes(downKey)){
-                            console.log(downKey)
+                            // console.lo/.g(downKey)
                             if (downKey == 'Backspace'){
                                 inputDatas.loginPw = inputDatas.loginPw.slice(0,-1)
                             } else {
@@ -1351,7 +1394,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         }
 
         if (scene != 'ingame-onecard'){
-            Text('copyright 2025 white studio. All rights reserved', [0,innerHeight-10], '20px', 'white')
+            Text('copyright 2025 white studio. All rights reserved', [10,innerHeight-30], '20px', 'white')
+            Text('Certain rights reserved by DLG', [10,innerHeight-10], '20px', 'white')
             
             
             phi.blit(uiSet.discord_icon,[0,0],null)

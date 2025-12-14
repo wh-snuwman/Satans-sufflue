@@ -118,7 +118,23 @@ export function online(){
 
         }else if (msg.code == '0.4.1.0'){
             window.centerDeck = msg.card
-            window.changeShape = msg.cahngeshape
+            window.changeShape = msg.changeshape
+            if (msg.ischange){
+                let shape = ''
+                if(changeShape == 'S'){
+                    newSignal(`❗모양이 바뀌었습니다 : ♠️`)
+
+                } else if(changeShape == 'D'){
+                    newSignal(`❗모양이 바뀌었습니다 : ♦️`)
+                    
+                } else if(changeShape == 'H'){
+                    newSignal(`❗모양이 바뀌었습니다 : ♥️`)
+                    
+                } else {
+                    newSignal(`❗모양이 바뀌었습니다 : ♣️`)
+
+                }
+            }
 
             console.log('✅ 센터카드 받음!')
 
@@ -128,6 +144,13 @@ export function online(){
 
         }else if (msg.code == '0.4.2.0'){
             window.turn = msg.turn
+            if (msg.turn == window.nickname){
+                newSignal(`✅ 당신의 차례입니다`)
+
+            } else {
+                newSignal(`✅ ${msg.turn}님의 차례입니다`)
+
+            }
             window.dropFlag = false
             
         }else if (msg.code == '0.4.3.0'){
@@ -135,8 +158,10 @@ export function online(){
                 window.isAttack = msg.state
                 if (window.isAttack){
                     console.log('✅ 공격 시작')
-                } else {
+                    newSignal('❗플레이어가 공격을 하였습니다!')
+                } else {                    
                     console.log('✅ 공격 중단')
+                    newSignal('✅ 공격이 중단되었습니다!')
                 }
             } else {
                 console.log('‼️  처리불가능 데이터 수신. 즉시 연결 중단.')
@@ -172,10 +197,8 @@ export function online(){
                 'p3':[innerWidth-300,500],
             }
 
-            
             resetUI()
 
-            
             window.cardsInf = []
             for (let i = 0; i<54; i++){
                 cardsInf.push({
@@ -194,12 +217,54 @@ export function online(){
 
 
 
-        }else if (msg.code == ''){
+        }else if (msg.code == '0.3.1.4'){
+            newSignal(`❌ 참가실패. 룸이 꽉찼습니다`)
+
+        }else if (msg.code == '0.4.4.1.1'){
+            if (msg.turn == window.nickname){
+                newSignal(`✅ ${msg.passplayer}님이 패스 하였습니다. 당신의 차례입니다`)
+
+            } else {
+                newSignal(`✅ ${msg.passplayer}님이 패스 하였습니다. ${msg.turn}님 차례입니다`)
+
+            }
             
-        }else if (msg.code == ''){
+        }else if (msg.code == '0.4.4.1.2'){
+            window.ready = false
+            gameSet = true;
+            window.scene = 'menu-game'
+            window.playersDeck = {}
+            window.drawPile = []
+            window.centerDeck = ''
+            window.posList = {
+                'p0':[innerWidth/2,innerHeight-((window.cardSize[1]/2)*3)],
+                'p1':[300,500],
+                'p2':[innerWidth/2,400],
+                'p3':[innerWidth-300,500],
+            }
+
+            resetUI()
+
+            window.cardsInf = []
+            for (let i = 0; i<54; i++){
+                cardsInf.push({
+                    obj : phi.object(deck.TEST,[(innerWidth - window.cardSize[0])/2,(innerHeight - window.cardSize[1])/2],window.cardSize),
+                    aprObj : phi.object(deck[window.oneCardSet[i]],[(innerWidth - window.cardSize[0])/2,(innerHeight - window.cardSize[1])/2],window.cardSize),
+                    isSelect: false,
+                    posFixFlag:false,
+                    pos1:[0,0],
+                    pos2:[0,0],
+                    rank:window.oneCardSet[i],
+                    show:true,
+                    owner:null,
+                    preClick:false,
+                })
+            }
             
-        }else if (msg.code == ''){
-            
+            newSignal(`❗${msg.player}님의 이탈로 인하여 게임이 종료되었습니다`)
+
+
+
         }else if (msg.code == ''){
             
         }else if (msg.code == ''){
@@ -233,7 +298,7 @@ export function online(){
         window.sceneStartFlag = false
         window.scene = 'menu-main';
         // ============================== debug ============================== //
-        // window.scene = 'menu-winner';
+        // window.scene = 'ingmae-onecard';
 
         //TODO  ============================== debug ============================== //
         
