@@ -184,13 +184,12 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     ]
 
 
-    
-
     let backLoopNum = []
     let backLoopObj = []
 
-    function addLoopObj(img,pos=[0,0]){
+    function addLoopObj(img,pos=[0,0],type='nomarl'){
         backLoopNum.push(0)
+        if (type == 'onlynum'){return}
         backLoopObj.push(phi.object(img,pos,null))
     }
 
@@ -230,10 +229,6 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
 
 
     }
-
-    
-    // console.log(backLoopObj)
-
     const mainMenuBtnMargin = 40;
     window.oneCardSet = [...onecard_cards]
     window.deckSizeRatio = 0.5
@@ -276,13 +271,33 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     });
     
 
+
+    const sound = {
+        click:'src/sound/click.mp3',
+        error:'src/sound/error.mp3',
+        card:'src/sound/card.mp3',
+        music_1:'src/sound/music_1.mp3',
+    }
+
+
+    window.playSound = function(src){
+        const s = new Audio(sound[src])
+        s.play()
+    }
+
+    window.music = new Audio(sound.music_1)
+    music.loop = true;
+    window.startAudioFlag = false;
+    
+    // window.addEventListener('mousemove', () => {
+        
+    // }, { once: true });
+
+
     window.nickname = `USER${phi.random(0,200)}`;
     window.password = '0000';
-
     window.nickname = ``;
     window.password = '';
-
-
     window.login = false;
     window.profile = null;
     window.description = null;
@@ -344,7 +359,25 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         }
         return l;
     }
+    let pass = 0;
 
+    window.signal ={
+        obj:phi.object(uiImg.signal_bar,[(innerWidth - uiImg.signal_bar.width)/2,(innerHeight - uiImg.signal_bar.height)/2 - 380],null),
+        type:null,
+        text:'',
+        vis:false,
+        timer:0
+
+    }
+    phi.Goto(window.signal.obj,[0,-150])
+    // window.signal.obj.startY += -
+
+    window.newSignal = function(text,code){
+        window.signal.text =  text
+        phi.moveY(window.signal.obj,-150)
+        window.signal.timer = Date.now() + 4000
+        window.signal.vis = true
+    }
 
     window.resetFixPos = false
     let cusorDelay = 0;
@@ -378,6 +411,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         phi.Goto(selectShapeObjs[2],[(innerWidth-shapeBtnResize[0])/2- (shapeBtnResize[0] + shapeBtnMarginVer)*-0.5,(innerHeight-uiImg.select_shape_bar.height)/2  + shapeBtnMarginHor/2],[shapeBtnSize[0]*shapeBtnRatio,shapeBtnSize[1]*shapeBtnRatio]);
         phi.Goto(selectShapeObjs[3],[(innerWidth-shapeBtnResize[0])/2- (shapeBtnResize[0] + shapeBtnMarginVer)*-1.5,(innerHeight-uiImg.select_shape_bar.height)/2  + shapeBtnMarginHor/2],[shapeBtnSize[0]*shapeBtnRatio,shapeBtnSize[1]*shapeBtnRatio]);
         
+        phi.Goto(signal.obj,[(innerWidth - uiImg.signal_bar.width)/2,(innerHeight - uiImg.signal_bar.height)/2 - 500])
+
         uiSet = {
             gameMenuUI : {
                 back_box : phi.object(uiImg.back_box,[(innerWidth-uiImg.back_box.width)/2,(innerHeight-uiImg.back_box.height)/2],null),
@@ -439,7 +474,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 table : phi.object(uiImg.table,[(innerWidth-uiImg.table.width),(innerHeight-uiImg.table.height)+150],null),
 
             }
-
+            
             
         }
     }
@@ -491,43 +526,25 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
 
     ]
 
-    let pass = 0;
-
-    window.signal ={
-        obj:phi.object(uiImg.signal_bar,[(innerWidth - uiImg.signal_bar.width)/2,(innerHeight - uiImg.signal_bar.height)/2 - 380],null),
-        type:null,
-        text:'',
-        vis:false,
-        timer:0
-
-    }
-    phi.moveY(window.signal.obj,-150)
-
-    window.newSignal = function(text,code){
-        window.signal.text =  text
-        phi.moveY(window.signal.obj,-150)
-        window.signal.timer = Date.now() + 4000
-        window.signal.vis = true
-    }
-
-
-
-    addLoopObj(backLoopImg[1]);
+    // #region input set
+    addLoopObj(backLoopImg[1]); // 0
     addLoopObj(backLoopImg[1]);
     addLoopObj(backLoopImg[1]);
     addLoopObj(backLoopImg[1]);
     addLoopObj(backLoopImg[0]);
     addLoopObj(backLoopImg[0]);
     addLoopObj(backLoopImg[0]);
-    addLoopObj(backLoopImg[0]);
+    addLoopObj(backLoopImg[0]); // 7
+
+    addLoopObj(null,[0,0],'onlynum'); // 8
+
     
-
-
     addInput('loginNick')
     addInput('loginPw')
     addInput('signUpNick')
     addInput('signUpPw')
     addInput('signUpPwC')
+    // #endregion
 
 
     for (let i=0; i < ((window.innerWidth / 120)+2)/2; i++){
@@ -546,13 +563,18 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         loopSet(0,4,5,(innerHeight-backLoopObj[1].height)*0.9);
         loopSet(0,6,7,(innerHeight-backLoopObj[1].height)*0.1);
         
+
+
+        backLoopNum[8]++;
         for (let i=8; i<backLoopObj.length;i++){
-            phi.moveX(backLoopObj[i],0.5)
             if (backLoopObj[i].x > innerWidth){
                 phi.moveX(backLoopObj[i],-innerWidth - 200)
             }
-            phi.moveY(backLoopObj[i],innerHeight*0.4 - backLoopObj[i].y)
+            const y = backLoopObj[i].y + innerHeight*0.4 - backLoopObj[i].y;
+            // phi.moveY(backLoopObj[i],innerHeight*0.4 - backLoopObj[i].y)
             phi.blit(backLoopObj[i])
+
+            phi.Goto(backLoopObj[i],[backLoopNum[8],y])
         }
 
         if (window.scene == 'ingmae-onecard'){
@@ -795,6 +817,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                                 selectFlag = true;
                                 selectLock = true;
                                 selectUI = name
+                                playSound('click')
+
                                 phi.moveY(ui,5)
                             }
                         }
@@ -803,6 +827,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                         if (click && !selectLock){
                             phi.moveY(ui,5)
                             codeInputSelect = true
+                            playSound('click')
+
                         }
                     
                     } else if (name == 'join_btn'){
@@ -813,20 +839,24 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                                 selectFlag = true;
                                 selectLock = true;
                                 selectUI = name
+                                playSound('click')
+
                                 phi.moveY(ui,5)
                             }
                         }
                     } else if (name == 'dev_inf_btn'){
-
                         if (click && !selectLock){
                             if (!selectFlag){
                                 selectDelay = Date.now() + 300;
                                 selectFlag = true;
                                 selectLock = true;
                                 selectUI = name
+                                playSound('click')
+
                                 phi.moveY(ui,5)
                             }
                         }
+
                     } else if (name == 'main_menu_btn'){
                         if (click && !selectLock){
                             if (!selectFlag){
@@ -834,6 +864,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                                 selectFlag = true;
                                 selectLock = true;
                                 selectUI = name
+                                playSound('click')
+
                                 phi.moveY(ui,5)
                             }
                         }
@@ -884,7 +916,14 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     selectFlag = false;
                     selectLock = false;
                 }
+            } else if (selectUI =='dev_inf_btn'){
+                if (selectFlag && (selectDelay < Date.now())){
+                    window.open('https://github.com/wh-snuwman/Satans-sufflue')
+                    selectFlag = false;
+                    selectLock = false;
+                }
             }
+
 
 
 
@@ -895,6 +934,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     phi.moveY(uiSet.gameMenuUI['long_bar'],4)
                 } else if (alphabet.includes(downKey) && codeInput.length < 5){
                     codeInput = codeInput + downKey
+                    playSound('card')
+
                     codeInput.toUpperCase()
                     phi.moveY(uiSet.gameMenuUI['long_bar'],-4)
 
@@ -1037,6 +1078,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                         selectFlag = true
                         selectLock = true
                         selectUI = name
+                        playSound('click')
                     }
                 } else if (name == 'sign_up_btn'){
                     if (phi.isEncounterPos(fixObj,mousePos) && click && !selectLock){
@@ -1045,6 +1087,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                         selectFlag = true
                         selectLock = true
                         selectUI = name
+                        playSound('click')
                     }
 
 
@@ -1056,6 +1099,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 }
 
                 if (selectFlag && (selectDelay < Date.now())){
+                    
                     window.sceneStartFlag = false
                     if (selectUI == 'login_btn'){
                         window.scene = 'menu-login'
@@ -1096,6 +1140,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     if (phi.isEncounterPos(ui,mousePos) && click){
                         inputSelects.signUpNick = true
                         phi.moveY(ui,3)
+                        playSound('click')
+
                         // inputDatas.signUpNick = true
 
                     } else if (click){
@@ -1109,6 +1155,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                             } else {
                                 if (inputDatas.signUpNick.length < 20){
                                     inputDatas.signUpNick = inputDatas.signUpNick + downKey
+                                    playSound('card')
+                                    
                                 } 
                             }
                         }
@@ -1117,6 +1165,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     if (phi.isEncounterPos(ui,mousePos) && click){
                         inputSelects.signUpPw = true
                         phi.moveY(ui,3)
+                        playSound('click')
+
                         // inputDatas.signUpPw = true
 
                     } else if (click){
@@ -1129,6 +1179,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                                 inputDatas.signUpPw = inputDatas.signUpPw.slice(0,-1)
                             } else {
                                 inputDatas.signUpPw = inputDatas.signUpPw + downKey
+                                playSound('card')
+
                             }
                         }
                     }
@@ -1136,6 +1188,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     if (phi.isEncounterPos(ui,mousePos) && click){
                         inputSelects.signUpPwC = true
                         phi.moveY(ui,3)
+                        playSound('click')
+
 
                     } else if (click){
                         inputSelects.signUpPwC = false
@@ -1143,9 +1197,11 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     if (inputSelects.signUpPwC){
                         if (downKey && !BanLetter.includes(downKey)){
                             // console.log(downKey)
+                            
                             if (downKey == 'Backspace'){
                                 inputDatas.signUpPwC = inputDatas.signUpPwC.slice(0,-1)
                             } else {
+                                playSound('card')
                                 inputDatas.signUpPwC = inputDatas.signUpPwC + downKey
                             }
                         }
@@ -1153,6 +1209,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 } else if (name == 'submit_btn'){
                     if (phi.isEncounterPos(ui,mousePos) && click){
                         phi.moveY(ui,4)
+                        playSound('click')
+
                         selectDelay = Date.now() + 300
                         selectFlag = true
                         selectLock = true
@@ -1252,6 +1310,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     if (phi.isEncounterPos(ui,mousePos) && click){
                         inputSelects.loginNick = true
                         phi.moveY(ui,3)
+                        playSound('click')
+
                         // inputDatas.loginNick = true
 
                     } else if (click){
@@ -1265,6 +1325,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                             } else {
                                 if (inputDatas.loginNick.length < 20){
                                     inputDatas.loginNick = inputDatas.loginNick + downKey
+                                    playSound('card')
+
                                 } 
                             }
                         }
@@ -1274,6 +1336,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     if (phi.isEncounterPos(ui,mousePos) && click){
                         inputSelects.loginPw = true
                         phi.moveY(ui,3)
+                        playSound('click')
+
 
                     } else if (click){
                         inputSelects.loginPw = false
@@ -1285,6 +1349,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                                 inputDatas.loginPw = inputDatas.loginPw.slice(0,-1)
                             } else {
                                 inputDatas.loginPw = inputDatas.loginPw + downKey
+                                playSound('card')
+
                             }
                         }
                     }
@@ -1295,6 +1361,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                         selectDelay = Date.now() + 300
                         selectFlag = true
                         selectLock = true
+                        playSound('click')
                     }
                 }
 
@@ -1432,6 +1499,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
             }
         }
 
+        
+
 
         phi.blit(signal.obj)
         if (signal.timer > Date.now()){
@@ -1462,6 +1531,10 @@ document.addEventListener('mousemove',(e)=>{
 
 document.addEventListener('click',()=>{
     click=true;
+    if (!window.startAudioFlag) {
+        window.music.play();
+        window.startAudioFlag = true;
+    }
 })
 
 

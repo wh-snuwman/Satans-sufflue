@@ -267,20 +267,7 @@ export function online(){
 
         }else if (msg.code == ''){
             
-        }else if (msg.code == ''){
-            
-        }else if (msg.code == ''){
-            
-        }else if (msg.code == ''){
-            
-        }else if (msg.code == ''){
-            
-        }else if (msg.code == ''){
-            
-        }else if (msg.code == ''){
-            
         }
-
 
     }
      
@@ -296,27 +283,7 @@ export function online(){
     
     sc.addEventListener('open', () => {
         window.sceneStartFlag = false
-        window.scene = 'menu-main';
-        // ============================== debug ============================== //
-        // window.scene = 'ingmae-onecard';
-
-        //TODO  ============================== debug ============================== //
-        
-        if (window.dev){
-            // window.scene = 'menu-ga'
-            window.nickname = `USER${phi.random(0,500)}`
-            window.password = '0000'
-
-            sc.send(JSON.stringify({ 
-                code:"0.1",
-                nickname: window.nickname,
-                password: window.password, 
-                // anonymous:true 
-            }));
-
-        }
-
-        
+        window.scene = 'menu-main';        
     });
 }
 
