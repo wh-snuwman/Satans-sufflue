@@ -5,7 +5,13 @@ import  {onecard_attackCard,onecard_attackCardAmount,onecard_cards} from '/card.
 const phi = new PHI("canvas");
 
 export function online(){
-    window.sc = new WebSocket('ws://127.0.0.1:3000/')
+    const wsUrl =window.location.protocol === 'https:'
+        ? `wss://${window.localStorage.host}/ws`
+        : `ws://${window.location.host}/ws`;
+
+    window.sc = new WebSocket(wsUrl)
+    
+    
     window.roomCode = null; 
 
     sc.onopen = () => {
