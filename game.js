@@ -155,8 +155,6 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         input_bar: await phi.imgLoad('/src/img/ui/input_bar.png'),
         back_box_basic: await phi.imgLoad('/src/img/ui/back_box_basic.png'),
         signal_bar: await phi.imgLoad('/src/img/ui/signal_bar.png'),
-
-
         discord_icon: await phi.imgLoad('/src/img/ui/discord_icon.png'),
         DGL_icon: await phi.imgLoad('/src/img/ui/DGL_icon.png'),
         instagram_icon: await phi.imgLoad('/src/img/ui/instagram_icon.png'),
@@ -165,6 +163,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         crown: await phi.imgLoad('/src/img/ui/crown.png'),
         confirm_btn: await phi.imgLoad('/src/img/ui/confirm_btn.png'),
         winner_profile_rect: await phi.imgLoad('/src/img/ui/winner_profile_rect.png'),
+        bottom_bar: await phi.imgLoad('/src/img/ui/bottom_bar.png'),
 
     }
 
@@ -322,7 +321,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
 
     window.turn = null;
     window.dropFlag = false
-    const centerDeckObj = phi.object(deck['TEST'],centerDeckPos,window.cardSize)
+    const centerDeckObj = phi.object(deck['BACK'],centerDeckPos,window.cardSize)
     online();
     let codeInputSelect = false;
     let codeInput = '';
@@ -459,7 +458,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
 
             },
             ingameOnecard:{
-                table : phi.object(uiImg.table,[(innerWidth-uiImg.table.width),(innerHeight-uiImg.table.height)+150],null),
+                table : phi.object(uiImg.table,[(innerWidth-uiImg.table.width)/2,(innerHeight-uiImg.table.height)+150],null),
+                bottom_bar : phi.object(uiImg.bottom_bar,[(innerWidth-uiImg.bottom_bar.width)/2,(innerHeight-uiImg.bottom_bar.height)+160],null),
 
             }
 
@@ -610,6 +610,10 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 let ui = uiSet.ingameOnecard[name]
                 phi.blit(ui)
             }// ui 시스템 (신경안써도됨)
+            addBlit({obj:centerDeckObj,layerRank:54})
+
+
+
 
             for (let inf of window.cardsInf){
                 let obj = inf.obj
@@ -624,13 +628,13 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     
                     if (myDeck.includes(rank)){
                         const cardNumber = myDeck.indexOf(rank)
-    
+                        
                         if (pName !== window.nickname){
                             phi.Goto(obj,
                                 [(window.posList[pName][0] - (myDeck.length * window.cardSize[0])/3.25) + cardNumber * window.cardSize[0]/2, 
                                 window.posList[pName][1]]
                             )
-
+                            
                             phi.rotate(obj,20- obj.angle)
                             
                         } else {
@@ -640,32 +644,41 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                                 + (cardNumber * window.cardSize[0]*0.6),
                                 window.posList[pName][1]
                             ])
-
+                            
                             phi.rotate(obj,10- obj.angle)
-    
+                            
                             if (!inf.posFixFlag){
                                 inf.pos1 = [obj.x,obj.y]
                                 inf.posFixFlag = true
                             }
-    
+                            
                             if (window.resetFixPos){
                                 inf.posFixFlag = false
                             }
                         }
-    
+                        
                         owner = pName
+                        
                     }
     
+                    // 내카드일때 (선택)
                     if (!openSelectShape && owner == window.nickname && phi.isEncounterPos(obj, mousePos) && click && !openSelectShape){
                         inf.isSelect = true
                         selectCard = rank
                     }
     
+
+                    // 내카드 일때
                     if (owner == window.nickname){
                         if (selectCard == rank){
                             phi.Goto(obj,[inf.pos1[0],inf.pos1[1]-40])
+                            console.log(click)
+                            console.log(canDrop(selectCard,window.centerDeck,window.isAttack,window.changeShape))
+                            console.log(!window.dropFlag)
+                            console.log(turn == window.nickname)
                             if (click && canDrop(selectCard,window.centerDeck,window.isAttack,window.changeShape) && !window.dropFlag && turn == window.nickname){
-                                
+
+
                                 let canSend = false;
 
                                 if (window.isAttack){
@@ -697,16 +710,14 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                             phi.Goto(obj,[inf.pos1[0],inf.pos1[1]])
                             
                         }
-                    }
+                    } 
     
-                    
+                    // 내타드가 아닐때 숨기기
                     if (owner !== window.nickname){
                         show = false
                     } else {
                         show = true
                     }
-    
-
 
                     if (owner == null){
                         phi.rotate(obj,0 - obj.angle)
@@ -725,23 +736,41 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     
                     
                 }
-    
                 phi.moveX(apr_obj,((obj.x) - apr_obj.x) / 7)
                 phi.moveY(apr_obj,((obj.y) - apr_obj.y) / 7)
                 phi.rotate(apr_obj,((obj.angle) - apr_obj.angle) /10)
-                if (show){
-                    addBlit(apr_obj)
-                } else {
-                    const obj_ = {...apr_obj}
+                
+                const obj_ = {...apr_obj}
+                if (!show){
                     obj_.img = deck.BACK
-                    addBlit(obj_)
                 }
+                
+
+                if (rank == centerDeck){ // 중앙 덱일경우
+                    addBlit({
+                        obj:obj_,
+                        layerRank:54
+                    })
+                }else {
+                    for (let pName in window.playersDeck){
+                        const myDeck = window.playersDeck[pName]
+                        const cardNumber = myDeck.indexOf(rank)
+                        
+                        if (cardNumber === -1) continue
+
+                        addBlit({
+                            obj:obj_,
+                            layerRank:cardNumber
+                        })
+                    }
+                }
+
             }
             // #endregion
 
-            console.log(playersDeck)
+            blitLayer.sort((a,b) => a.layerRank - b.layerRank)
             for (let cardObj of blitLayer){
-                phi.blit(cardObj)
+                phi.blit(cardObj.obj)
             }
             blitLayer = []
 
@@ -780,6 +809,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
             }
             phi.moveY(selectShapeAprObj,(selectShapeAprObj.startY - selectShapeAprObj.y)/10)
 
+
             if (phi.isEncounterPos(centerDeckObj,mousePos) && click && turn == window.nickname) {
                 if (playersDeck[window.nickname].length < 12){
                     pass = 0
@@ -803,6 +833,17 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 }
                 
             }
+
+            const h = textCanvas.clientHeight
+            Text(`나의 닉네임 : ${window.nickname}`, [40,h-17], '25px', 'white')
+            Text(`현재턴 : ${window.turn}`, [700,h-17], '25px', 'white',)
+            if (window.attackAmount > 0){
+                Text(`+${window.attackAmount}`, [centerDeckPos[0]+window.cardSize[0]*1.5 + 10,centerDeckPos[1] - 20], '50px', 'red')
+            }
+            // Text('Certain rights reserved by DLG', [10,h-10], '20px', 'white')
+
+
+
 
 
         } else if (window.scene == 'menu-game'){
@@ -1471,7 +1512,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
             }
         }
 
-        if (window.scene != 'ingame-onecard'){
+        if (window.scene !== 'ingmae-onecard'){
 
             const h = textCanvas.clientHeight
             Text('copyright 2025 white studio. All rights reserved', [10,h-30], '20px', 'white')
@@ -1518,7 +1559,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         if (signal.timer > Date.now()){
             phi.moveY(signal.obj,(signal.obj.startY - signal.obj.y)/7)
         } else {
-            phi.moveY(signal.obj,(signal.obj.startY-150 - signal.obj.y)/7)
+            phi.moveY(signal.obj,(signal.obj.startY-500 - signal.obj.y)/20)
         }
         Text(signal.text, [(innerWidth/2),signal.obj.y+48], '40px', 'black',undefined,'center')
 

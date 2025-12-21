@@ -48,6 +48,11 @@ export function online(){
             window.sceneStartFlag = false
             window.scene = 'menu-game'
 
+            if (window.devMode){
+                window.scene = 'ingmae-onecard';
+            }
+
+
         } else if (msg.code == '0.1.0'){   
             console.log(`❌ 로그인실패 TIP: ${msg.tip}`)
             newSignal(`❌ ${msg.tip}`)
@@ -102,23 +107,26 @@ export function online(){
             console.log(`🎲 플레이어 딕셔너리 수정완료: ${Object.keys(window.players)}`)
             
             const playersName = Object.keys(window.players);
-            const pName0 = playersName[0]
-            const pName1 = playersName[1]
-            const pName2 = playersName[2]
-            const pName3 = playersName[3]
+            console.
             
-            window.playersDeck[pName0] = [];
-            window.playersDeck[pName1] = [];
-            window.playersDeck[pName2] = [];
-            window.playersDeck[pName3] = [];
+            log(playersName)
 
-            window.posList = {
-               [pName0]:posList.p0,
-               [pName1]:posList.p1,
-               [pName2]:posList.p2,
-               [pName3]:posList.p3,
+
+            for (let i in playersName){
+                window.playersDeck[playersName[i]] = [];
+                window.posList[playersName[i]] = posList[`p${i}`]
             }
+ 
+            for (let i=0; i < 4; i++){
+                delete window.posList[`p${i}`]
+            }
+            
+            console.log(playersDeck)
+            console.log(posList)
+            console.log(playersName,posList)
 
+            
+            
 
         } else if (msg.code == '0.4.0.0') {
             // window.playersDeck[msg.player].push(msg.card)
@@ -136,24 +144,37 @@ export function online(){
         }else if (msg.code == '0.4.1.0'){
             window.centerDeck = msg.card
             window.changeShape = msg.changeshape
+            
+            console.log(changeShape)
+            console.log(msg.card)
+
             if (msg.ischange){
-                let shape = ''
+                let text = ''
+                if (msg.turn == window.nickname){
+                    text = '당신의 차례입니다'
+                } else {
+                    text = `${msg.turn}님의 차례입니다`
+                }
+
                 if(changeShape == 'S'){
-                    newSignal(`❗모양이 바뀌었습니다 : ♠️`)
+                    newSignal(`❗모양이 바뀌었습니다 : ♠️ ${text}`)
 
                 } else if(changeShape == 'D'){
-                    newSignal(`❗모양이 바뀌었습니다 : ♦️`)
+                    newSignal(`❗모양이 바뀌었습니다 : ♦️ ${text}`)
                     
                 } else if(changeShape == 'H'){
-                    newSignal(`❗모양이 바뀌었습니다 : ♥️`)
+                    newSignal(`❗모양이 바뀌었습니다 : ♥️ ${text}`)
                     
                 } else {
-                    newSignal(`❗모양이 바뀌었습니다 : ♣️`)
+                    newSignal(`❗모양이 바뀌었습니다 : ♣️ ${text}`)
 
                 }
+                window.turn = msg.turn
+                window.dropFlag = false
             }
 
             console.log('✅ 센터카드 받음!')
+
 
         }else if (msg.code == '0.4.1.1'){
             window.drawPile = msg.deck
@@ -236,7 +257,9 @@ export function online(){
 
         }else if (msg.code == '0.3.1.4'){
             newSignal(`❌ 참가실패. 룸이 꽉찼습니다`)
-
+        }else if (msg.code == '0.3.1.4'){
+            newSignal(`❌ 참가실패. 이미 게임중입니다`)
+        
         }else if (msg.code == '0.4.4.1.1'){
             if (msg.turn == window.nickname){
                 newSignal(`✅ ${msg.passplayer}님이 패스 하였습니다. 당신의 차례입니다`)
@@ -308,6 +331,8 @@ export function online(){
                 "nickname":`USER${phi.random(0,500)}`,
                 'password':'0000',
             }))
+            
+            
         }
 
 
