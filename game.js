@@ -627,6 +627,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 let obj = inf.obj
                 let apr_obj = inf.aprObj
                 let rank = inf.rank
+
+                inf.owner = null
                 let owner = inf.owner
                 let show = inf.show
                 
@@ -666,6 +668,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                         }
                         
                         owner = pName
+                        inf.owner = pName
                         
                     }
     
