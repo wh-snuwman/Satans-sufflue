@@ -10,7 +10,7 @@ export function online(){
     //     : `ws://${window.location.host}/ws`;
 
     // ===================== dev =====================  // 
-    window.devMode = false
+    // window.devMode = false
     // ===================== dev =====================  // 
     if (window.devMode){
         console.log('‼️ 현재 개발모드입니다')
@@ -21,9 +21,43 @@ export function online(){
 
 
     window.sc = new WebSocket(wsUrl)
-    
-    
     window.roomCode = null; 
+
+    function gameReset(msg){
+        window.winner = msg.winner
+        window.ready = false
+        window.gameSet = true;
+        // window.scene = 'menu-winner'
+        window.playersDeck = {}
+        window.drawPile = []
+        window.centerDeck = ''
+        window.players = structuredClone(players_unedit)
+        window.posList = {
+            'p0':[innerWidth/2,innerHeight-((window.cardSize[1]/2)*3)],
+            'p1':[300,500],
+            'p2':[innerWidth/2,400],
+            'p3':[innerWidth-300,500],
+        }
+        resetUI()
+
+        window.cardsInf = []
+        for (let i = 0; i<54; i++){
+            cardsInf.push({
+                obj : phi.object(deck.TEST,[(innerWidth - window.cardSize[0])/2,(innerHeight - window.cardSize[1])/2],window.cardSize),
+                aprObj : phi.object(deck[window.oneCardSet[i]],[(innerWidth - window.cardSize[0])/2,(innerHeight - window.cardSize[1])/2],window.cardSize),
+                isSelect: false,
+                posFixFlag:false,
+                pos1:[0,0],
+                pos2:[0,0],
+                rank:window.oneCardSet[i],
+                show:true,
+                owner:null,
+                preClick:false,
+            })
+        }
+    }
+
+
 
     sc.onopen = () => {
         console.log('✅ 서버에 연결 되었습니다!')
@@ -33,25 +67,22 @@ export function online(){
     sc.onmessage = (event) => {
         let msg = JSON.parse(event.data);
         if (msg.code == '0.1.1') {
-            console.log(`✅ 로그인성공: ${window.nickname}`)
-            newSignal(`✅ 로그인성공`)
             window.nickname = msg.nickname
-            // window.pass = msg.nickname
-
             window.login = true
             window.profile = msg.profile
             window.description = msg.description
             window.skin = msg.skin
             window.level = msg.level
             window.rank = msg.rank
-
             window.sceneStartFlag = false
             window.scene = 'menu-game'
 
-            // if (window.devMode){
-            //     window.scene = 'ingmae-onecard';
-            // }
-
+            if (!eventMode){
+                console.log(`✅ 로그인성공: ${window.nickname}`)
+                newSignal(`✅ 로그인성공`)
+            } else {
+                newSignal(`🎁 이벤트용 계정으로 접속하였습니다. ${window.nickname}`)
+            }
 
         } else if (msg.code == '0.1.0'){   
             console.log(`❌ 로그인실패 TIP: ${msg.tip}`)
@@ -94,6 +125,8 @@ export function online(){
             window.sceneStartFlag = false
             window.scene = 'ingmae-onecard'
             
+            window.players_unedit = structuredClone(window.players)
+
             const rotatedPlayers = {};
             let keys = Object.keys(window.players);
             while (keys.length > 0 && keys[0] !== nickname) {
@@ -107,9 +140,6 @@ export function online(){
             console.log(`🎲 플레이어 딕셔너리 수정완료: ${Object.keys(window.players)}`)
             
             const playersName = Object.keys(window.players);
-            console.
-            
-            log(playersName)
 
 
             for (let i in playersName){
@@ -121,9 +151,9 @@ export function online(){
                 delete window.posList[`p${i}`]
             }
             
-            console.log(playersDeck)
-            console.log(posList)
-            console.log(playersName,posList)
+            // console.log(playersDeck)
+            // console.log(posList)
+            // console.log(playersName,posList)
 
             
             
@@ -144,7 +174,6 @@ export function online(){
         }else if (msg.code == '0.4.1.0'){
             window.centerDeck = msg.card
             window.changeShape = msg.changeshape
-            
             console.log(changeShape)
             console.log(msg.card)
 
@@ -167,10 +196,19 @@ export function online(){
                     
                 } else {
                     newSignal(`❗모양이 바뀌었습니다 : ♣️ ${text}`)
-
                 }
+
                 window.turn = msg.turn
                 window.dropFlag = false
+            } else {
+                console.log(msg)
+                window.turn = msg.turn
+                window.dropFlag = false
+                if (msg.turn == window.nickname){
+                    newSignal(`✅ 당신의 차례입니다`)
+                } else {
+                    newSignal(`✅ ${msg.turn}님의 차례입니다`)
+                }
             }
 
             console.log('✅ 센터카드 받음!')
@@ -182,14 +220,13 @@ export function online(){
 
         }else if (msg.code == '0.4.2.0'){
             window.turn = msg.turn
+            window.dropFlag = false
             if (msg.turn == window.nickname){
                 newSignal(`✅ 당신의 차례입니다`)
-
             } else {
                 newSignal(`✅ ${msg.turn}님의 차례입니다`)
-
             }
-            window.dropFlag = false
+
             
         }else if (msg.code == '0.4.3.0'){
             if (msg.state == true || msg.state == false){
@@ -221,39 +258,8 @@ export function online(){
             console.log('❌ 가입실패. 닉네임 중복')
             
         }else if (msg.code == '0.4.4.1.0'){
-            window.winner = msg.winner
-            window.ready = false
-            gameSet = true;
             window.scene = 'menu-winner'
-            window.playersDeck = {}
-            window.drawPile = []
-            window.centerDeck = ''
-            window.posList = {
-                'p0':[innerWidth/2,innerHeight-((window.cardSize[1]/2)*3)],
-                'p1':[300,500],
-                'p2':[innerWidth/2,400],
-                'p3':[innerWidth-300,500],
-            }
-
-            resetUI()
-
-            window.cardsInf = []
-            for (let i = 0; i<54; i++){
-                cardsInf.push({
-                    obj : phi.object(deck.TEST,[(innerWidth - window.cardSize[0])/2,(innerHeight - window.cardSize[1])/2],window.cardSize),
-                    aprObj : phi.object(deck[window.oneCardSet[i]],[(innerWidth - window.cardSize[0])/2,(innerHeight - window.cardSize[1])/2],window.cardSize),
-                    isSelect: false,
-                    posFixFlag:false,
-                    pos1:[0,0],
-                    pos2:[0,0],
-                    rank:window.oneCardSet[i],
-                    show:true,
-                    owner:null,
-                    preClick:false,
-                })
-            }
-
-
+            gameReset(msg)
 
         }else if (msg.code == '0.3.1.4'){
             newSignal(`❌ 참가실패. 룸이 꽉찼습니다`)
@@ -270,37 +276,9 @@ export function online(){
             }
             
         }else if (msg.code == '0.4.4.1.2'){
-            window.ready = false
-            gameSet = true;
-            window.scene = 'menu-game'
-            window.playersDeck = {}
-            window.drawPile = []
-            window.centerDeck = ''
-            window.posList = {
-                'p0':[innerWidth/2,innerHeight-((window.cardSize[1]/2)*3)],
-                'p1':[300,500],
-                'p2':[innerWidth/2,400],
-                'p3':[innerWidth-300,500],
-            }
-
-            resetUI()
-
-            window.cardsInf = []
-            for (let i = 0; i<54; i++){
-                cardsInf.push({
-                    obj : phi.object(deck.TEST,[(innerWidth - window.cardSize[0])/2,(innerHeight - window.cardSize[1])/2],window.cardSize),
-                    aprObj : phi.object(deck[window.oneCardSet[i]],[(innerWidth - window.cardSize[0])/2,(innerHeight - window.cardSize[1])/2],window.cardSize),
-                    isSelect: false,
-                    posFixFlag:false,
-                    pos1:[0,0],
-                    pos2:[0,0],
-                    rank:window.oneCardSet[i],
-                    show:true,
-                    owner:null,
-                    preClick:false,
-                })
-            }
             
+            window.scene = 'menu-game'
+            gameReset(msg)
             newSignal(`❗${msg.player}님의 이탈로 인하여 게임이 종료되었습니다`)
 
 
@@ -317,23 +295,19 @@ export function online(){
     
     sc.onclose = () => {
         console.log('❗ 서버와의 연결을 실패 했습니다')
-        // window.location.reload();
     }
     
     sc.addEventListener('open', () => {
         window.sceneStartFlag = false
         window.scene = 'menu-main'; 
-        
-        
-        if (window.devMode){
-            window.sc.send(JSON.stringify({
-                'code':'0.1',
-                "nickname":`USER${phi.random(0,500)}`,
-                'password':'0000',
-            }))
+        // if (window.devMode){
+        //     // window.sc.send(JSON.stringify({
+        //     //     'code':'0.1',
+        //     //     "nickname":`USER${phi.random(0,500)}`,
+        //     //     'password':'0000',
+        //     // }))
             
-            
-        }
+        // }
 
 
 

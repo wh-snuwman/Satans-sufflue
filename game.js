@@ -140,6 +140,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         'elf':await phi.imgLoad('/src/img/profile/elf.png'),
         'rudolph':await phi.imgLoad('/src/img/profile/rudolph.png'),
         'santa':await phi.imgLoad('/src/img/profile/santa.png'),
+        'user':await phi.imgLoad('/src/img/profile/user.png'),
     }
 
     const uiImg = {
@@ -172,6 +173,11 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         confirm_btn: await phi.imgLoad('/src/img/ui/confirm_btn.png'),
         winner_profile_rect: await phi.imgLoad('/src/img/ui/winner_profile_rect.png'),
         bottom_bar: await phi.imgLoad('/src/img/ui/bottom_bar.png'),
+        
+        arrow_left: await phi.imgLoad('/src/img/ui/arrow_left.png'),
+        arrow_right: await phi.imgLoad('/src/img/ui/arrow_right.png'),
+        profile_margin_box: await phi.imgLoad('/src/img/ui/profile_margin_box.png'),
+        red_box: await phi.imgLoad('/src/img/ui/red_box.png'),
 
     }
 
@@ -295,7 +301,6 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     window.music = new Audio(sound.music_1)
     music.loop = true;
     window.startAudioFlag = false;
-
     window.nickname = `USER${phi.random(0,200)}`;
     window.password = '0000';
     window.nickname = ``;
@@ -311,29 +316,25 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     window.isAttack = false;
     window.attackAmount = 0
     window.changeShape = null;
-
+    window.players_unedit = {}
     window.winner = null;
     window.gameSet = false;
     window.menuReset
-
+    window.cancelSeven = 0
     let selectFlag = false
     let selectUI = null;
     let selectDelay = 0
     let selectLock = false
-
-
     window.addCard = (player,card) =>{
         window.resetFixPos = true
         window.playersDeck[player].push(card)
     }
-
     window.turn = null;
     window.dropFlag = false
     const centerDeckObj = phi.object(deck['BACK'],centerDeckPos,window.cardSize)
     online();
     let codeInputSelect = false;
     let codeInput = '';
-
     let inputSelects = {}
     let inputDatas = {}
     let inputCusorDelays = {};
@@ -386,6 +387,12 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     let shapeBtnMarginHor = shapeBtnSize[1]*(1-shapeBtnRatio)
     let shapeBtnMarginVer = 10;
     let shapeBtnDelay = 0
+
+
+    window.eventMode = false 
+    window.eventModeNum = 0
+    window.eventModeSelectAccount = 'santa'
+    window.eventModeSelectPw = '20251225'
 
     let selectShapeObjs = [
         phi.object(deck.TEST,[(innerWidth-shapeBtnResize[0])/2- (shapeBtnResize[0] + shapeBtnMarginVer)*1.5,(innerHeight-uiImg.select_shape_bar.height)/2  + shapeBtnMarginHor/2],[shapeBtnSize[0]*shapeBtnRatio,shapeBtnSize[1]*shapeBtnRatio]),
@@ -469,20 +476,35 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                 table : phi.object(uiImg.table,[(innerWidth-uiImg.table.width)/2,(innerHeight-uiImg.table.height)+150],null),
                 bottom_bar : phi.object(uiImg.bottom_bar,[(innerWidth-uiImg.bottom_bar.width)/2,(innerHeight-uiImg.bottom_bar.height)+160],null),
 
+            },
+            eventMode:{
+                red_box : phi.object(uiImg.red_box,[(innerWidth-uiImg.red_box.width)/2,(innerHeight-uiImg.red_box.height)/2],null),
+                arrow_left:phi.object(uiImg.arrow_left,[(innerWidth-uiImg.arrow_left.width)/2 - 100,(innerHeight-uiImg.arrow_left.height)/2 + 20],null),
+                arrow_right:phi.object(uiImg.arrow_right,[(innerWidth-uiImg.arrow_left.width)/2 + 100,(innerHeight-uiImg.arrow_left.height)/2 + 20],null),
+                
+                profile_margin_box_0:phi.object(uiImg.profile_margin_box,[(innerWidth-uiImg.profile_margin_box.width)/2 - uiImg.profile_margin_box.width*1.8,(innerHeight-uiImg.profile_margin_box.height)/2 + 130],null),
+                profile_margin_box_1:phi.object(uiImg.profile_margin_box,[(innerWidth-uiImg.profile_margin_box.width)/2 - uiImg.profile_margin_box.width*0.6,(innerHeight-uiImg.profile_margin_box.height)/2 + 130],null),
+                profile_margin_box_2:phi.object(uiImg.profile_margin_box,[(innerWidth-uiImg.profile_margin_box.width)/2 + uiImg.profile_margin_box.width*0.6,(innerHeight-uiImg.profile_margin_box.height)/2 + 130],null),
+                profile_margin_box_3:phi.object(uiImg.profile_margin_box,[(innerWidth-uiImg.profile_margin_box.width)/2 + uiImg.profile_margin_box.width*1.8,(innerHeight-uiImg.profile_margin_box.height)/2 + 130],null),
+            
+                profile_0:phi.object(profileImg.santa,[(innerWidth-uiImg.profile_margin_box.width)/2 - uiImg.profile_margin_box.width*1.8 + (uiImg.profile_margin_box.width - profileImg.user.width)/2,(innerHeight-uiImg.profile_margin_box.height)/2 + 130 + (uiImg.profile_margin_box.height - profileImg.user.height)/2],null),
+                profile_1:phi.object(profileImg.elf,[(innerWidth-uiImg.profile_margin_box.width)/2 - uiImg.profile_margin_box.width*0.6 + (uiImg.profile_margin_box.width - profileImg.user.width)/2,(innerHeight-uiImg.profile_margin_box.height)/2 + 130 + (uiImg.profile_margin_box.height - profileImg.user.height)/2],null),
+                profile_2:phi.object(profileImg.rudolph,[(innerWidth-uiImg.profile_margin_box.width)/2 + uiImg.profile_margin_box.width*0.6 + (uiImg.profile_margin_box.width - profileImg.user.width)/2,(innerHeight-uiImg.profile_margin_box.height)/2 + 130 + (uiImg.profile_margin_box.height - profileImg.user.height)/2],null),
+                profile_3:phi.object(profileImg.user,[(innerWidth-uiImg.profile_margin_box.width)/2 + uiImg.profile_margin_box.width*1.8 + (uiImg.profile_margin_box.width - profileImg.user.width)/2,(innerHeight-uiImg.profile_margin_box.height)/2 + 130 + (uiImg.profile_margin_box.height - profileImg.user.height)/2],null),
+                
+                confirm_btn:phi.object(uiImg.confirm_btn,[(innerWidth - uiImg.start_btn.width)/2,(innerHeight - uiImg.start_btn.height)/2 + 300],null),
+                
+            
             }
 
         }
         
     }
 
-
     let blitLayer = []
     function addBlit(obj){
         blitLayer.push(obj)
     }
-
-
-
 
     const BASE_W = 1920;
     const BASE_H = 1080;
@@ -492,17 +514,12 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
     )
 
     let resizeTimer
-
     function editPos(){
         phi.reSizeDisplay()
         resetUI()
         textCanvas.width  = innerWidth;
         textCanvas.height = innerHeight;
     }
-
-
-
-
 
     window.addEventListener('resize',()=>{
         clearTimeout(resizeTimer)
@@ -585,7 +602,6 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
         phi.fill(24/255,118/255,70/255,1)
         loopSet(0,0,1,10);
         loopSet(0,2,3,innerHeight-10-backLoopObj[1].height);
-        
         loopSet(1,4,5,(innerHeight-backLoopObj[1].height)*0.9);
         loopSet(1,6,7,(innerHeight-backLoopObj[1].height)*0.1);
         
@@ -602,7 +618,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
 
         if (window.scene == 'ingmae-onecard'){
 
-            // #region
+            // #region 핵심코드 요약
             let num = 0
             for(let pName in window.players){
                 if (pName){
@@ -624,11 +640,10 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
 
 
             for (let inf of window.cardsInf){
+                inf.owner = null
                 let obj = inf.obj
                 let apr_obj = inf.aprObj
                 let rank = inf.rank
-
-                inf.owner = null
                 let owner = inf.owner
                 let show = inf.show
                 
@@ -679,7 +694,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     }
     
 
-                    // 내카드 일때
+                    // 내카드 일때 : 버그의 핵심요인들의 집합
                     if (owner == window.nickname){
                         if (selectCard == rank){
                             phi.Goto(obj,[inf.pos1[0],inf.pos1[1]-40])
@@ -689,9 +704,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                             console.log(turn == window.nickname)
                             if (click && canDrop(selectCard,window.centerDeck,window.isAttack,window.changeShape) && !window.dropFlag && turn == window.nickname){
 
-
                                 let canSend = false;
-
                                 if (window.isAttack){
                                     if (onecard_attackCard.includes(selectCard) && canDrop(selectCard,window.centerDeck,window.isAttack,window.changeShape)){
                                         canSend = true;
@@ -704,6 +717,8 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                                     if (selectCard[1] == '7'){
                                         window.dropFlag = true;
                                         openSelectShape = true
+                                        window.cancelSeven = 0
+                                        window.cancelSevenFlag = false
                                     } else {
                                         window.dropFlag = true;
                                         pass = 0
@@ -730,7 +745,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                         show = true
                     }
 
-                    if (owner == null){
+                    if (owner == null){ // 센터덱이나 drawPile에 포함되어 있을때
                         phi.rotate(obj,0 - obj.angle)
                         if (window.centerDeck == rank){
                             phi.Goto(obj,
@@ -779,16 +794,32 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
             }
             // #endregion
 
+
+
+
+
+
+
+            // #region 카드 차례대로 렌더링해주는 시스템
             blitLayer.sort((a,b) => a.layerRank - b.layerRank)
             for (let cardObj of blitLayer){
                 phi.blit(cardObj.obj)
             }
             blitLayer = []
+            // #endregion
 
 
 
             if (openSelectShape){
                 phi.blit(selectShapeAprObj)
+                if (!cancelSevenFlag){
+                    cancelSevenFlag  = true
+                    window.cancelSeven = -1
+
+                } else {
+                    window.cancelSeven = 0
+                }
+
                 for (let num in selectShapeObjs){
                     const btn = selectShapeObjs[num]
                     if (phi.isEncounterPos(btn,mousePos) && click){
@@ -798,18 +829,27 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                             selectShape = 'S'
                         } else if (num == 2){
                             selectShape = 'D'
-                        } else {
+                        } else if (num == 3) {
                             selectShape = 'H'
                         }
+                        
                         shapeBtnDelay = Date.now() + 400
                         phi.moveY(selectShapeAprObj,-7)
                         break
+                    } else if (!phi.isEncounterPos(btn,mousePos) && click){
+                        window.cancelSeven++
+                        
                     }
+                    
+                }
+                if (window.cancelSeven == 4){
+                    openSelectShape = false;
+                    window.dropFlag = false;
+                    window.cancelSeven = -1;
                 }
             }
             
             if (selectShape && shapeBtnDelay < Date.now()){
-                // console.log('메세지 송신2')
                 openSelectShape = false;
                 window.sc.send(JSON.stringify({
                     code:"0.4.0.1.0",
@@ -851,10 +891,6 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
             if (window.attackAmount > 0){
                 Text(`+${window.attackAmount}`, [centerDeckPos[0]+window.cardSize[0]*1.5 + 10,centerDeckPos[1] - 20], '50px', 'red')
             }
-            // Text('Certain rights reserved by DLG', [10,h-10], '20px', 'white')
-
-
-
 
 
         } else if (window.scene == 'menu-game'){
@@ -1175,7 +1211,12 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                  
                 }
             }
+            
+            if (downKey == 'Tab'){
+                window.scene = 'menu-event-mode'
+                eventMode = true
 
+            }
 
         } else if (window.scene == 'menu-sign-up'){
 
@@ -1349,7 +1390,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
             // #endregion
 
 
-        }  else if (window.scene == 'menu-login'){
+        } else if (window.scene == 'menu-login'){
             if(!window.sceneStartFlag){
                 for(let name in uiSet.menuLogin){
                     const ui = uiSet.menuLogin[name]
@@ -1521,7 +1562,117 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
                     }
                 }
             }
+        } else if (window.scene == 'menu-event-mode'){
+            
+            
+            if (downKey == 'Escape'){
+                window.scene = 'menu-main'
+                window.sceneStartFlag = false
+            }
+            Text('이벤트모드',[innerWidth/2,innerHeight/2 - 100],'60px','white','basic','center')
+            Text('esc로 나가기',[innerWidth/2,innerHeight/2 - 55],'20px','white','basic','center')
+            Text('<선택된계정>',[innerWidth/2 + 250,innerHeight/2 -100],'30px','white','basic','center')
+            Text('닉네임',[innerWidth/2 + 250,innerHeight/2 -60],'20px','white','basic','center')
+            const nickname_ = `${window.eventModeSelectAccount}${window.eventModeNum}`
+            Text(nickname_,[innerWidth/2 + 250,innerHeight/2 -30],'30px','white','basic','center')
+            Text('비밀번호',[innerWidth/2 + 250,innerHeight/2 + 20],'20px','white','basic','center')
+            Text(`${window.eventModeSelectPw}`,[innerWidth/2 + 250,innerHeight/2 + 50],'30px','white','basic','center')
+            Text(`${window.eventModeNum}`,[innerWidth/2,innerHeight/2 + 35],'55px','white','basic','center')
+
+           
+            for(let name in uiSet.eventMode){
+                const ui = uiSet.eventMode[name]
+                phi.blit(ui)
+                let fixObj = phi.object(ui.img,[ui.startX,ui.startY],null)
+                if (['confirm_btn','arrow_left','arrow_right'].includes(name) && phi.isEncounterPos(fixObj,mousePos)){
+                    phi.moveY(ui,(ui.startY-10 -ui.y)/7)
+                } else {
+                    phi.moveY(ui,(ui.startY -ui.y)/10)
+                }
+
+                if (name == 'arrow_left'){
+                    if (phi.isEncounterPos(ui,mousePos) && click){
+                        if (window.eventModeNum > 0){
+                            window.eventModeNum -= 1
+                        }
+                    }
+                } else if (name == 'arrow_right'){
+                    if (phi.isEncounterPos(ui,mousePos) && click){
+                        if (window.eventModeNum < 100){
+                            window.eventModeNum += 1
+                        }
+                    }
+                } else if (name == 'profile_margin_box_0'){
+                    if (phi.isEncounterPos(ui,mousePos) && click){
+                        window.eventModeSelectAccount = 'santa'
+                        window.eventModeSelectPw = '20251225'
+                    }
+                    if (window.eventModeSelectAccount == 'santa'){
+                        phi.moveY(ui,(ui.startY-10 -ui.y)/7)
+                    }
+                
+                } else if (name == 'profile_margin_box_1'){
+                    if (phi.isEncounterPos(ui,mousePos) && click){
+                        window.eventModeSelectAccount = 'elf'
+                        window.eventModeSelectPw = '20251225'
+
+                    }
+                    if (window.eventModeSelectAccount == 'elf'){
+                        phi.moveY(ui,(ui.startY-10 -ui.y)/7)
+                    }
+                } else if (name == 'profile_margin_box_2'){
+                    if (phi.isEncounterPos(ui,mousePos) && click){
+                        window.eventModeSelectAccount = 'rudolph'
+                        window.eventModeSelectPw = '20251225'
+
+                    }
+                    if (window.eventModeSelectAccount == 'rudolph'){
+                        phi.moveY(ui,(ui.startY-10 -ui.y)/7)
+                    }
+                } else if (name == 'profile_margin_box_3'){
+                    if (phi.isEncounterPos(ui,mousePos) && click){
+                        window.eventModeSelectAccount = 'USER'
+                        window.eventModeSelectPw = '0000'
+
+                    }
+                    if (window.eventModeSelectAccount == 'USER'){
+                        phi.moveY(ui,(ui.startY-10 -ui.y)/7)
+                    }
+                } else if (name == 'profile_0'){
+                    if (window.eventModeSelectAccount == 'santa'){
+                        phi.moveY(ui,(ui.startY-20 -ui.y)/7)
+                    }
+                } else if (name == 'profile_1'){
+                    if (window.eventModeSelectAccount == 'elf'){
+                        phi.moveY(ui,(ui.startY-20 -ui.y)/7)
+                    }
+                } else if (name == 'profile_2'){
+                    if (window.eventModeSelectAccount == 'rudolph'){
+                        phi.moveY(ui,(ui.startY-20 -ui.y)/7)
+                    }
+                } else if (name == 'profile_3'){
+                    if (window.eventModeSelectAccount == 'USER'){
+                        phi.moveY(ui,(ui.startY-20 -ui.y)/7)
+                    }
+                } else if (name == 'confirm_btn'){
+                    if (phi.isEncounterPos(ui,mousePos) && click){
+                        window.sc.send(JSON.stringify({
+                            'code':'0.1',
+                            "nickname":nickname_,
+                            'password':window.eventModeSelectPw,
+                        }))
+                    }
+                }
+           }
+
+
+            
+            
+
+
         }
+
+
 
         if (window.scene !== 'ingmae-onecard'){
 
@@ -1563,6 +1714,7 @@ const alphabet = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ".split(""
             }
         }
 
+        // phi.blit(ver_line)
         
 
 
@@ -1596,7 +1748,7 @@ document.addEventListener('mousemove',(e)=>{
 document.addEventListener('click',()=>{
     click=true;
     if (!window.startAudioFlag) {
-        window.music.play();
+        // window.music.play();
         window.startAudioFlag = true;
     }
 })
